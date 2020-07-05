@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" android:opacity="opaque">
+    <item
+        android:width="32dp"
+        android:height="32dp"
+        android:gravity="center">
+        <bitmap
+            android:gravity="fill"
+            android:src="@drawable/start_pic"
+            android:tint="@color/blue"
+            android:mipMap="true"/>
+    </item>
+</layer-list>

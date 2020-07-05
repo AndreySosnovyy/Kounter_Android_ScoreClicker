@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:fontFamily="sans-serif-thin"
+        android:text="Создать"
+        android:textSize="46sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/nameField"
+        android:layout_width="352dp"
+        android:layout_height="52dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginEnd="40dp"
+        android:layout_marginRight="40dp"
+        android:background="@drawable/border_textview"
+        android:fontFamily="sans-serif-thin"
+        android:hint=" Название счетчика"
+        android:paddingStart="10dp"
+        android:paddingLeft="10dp"
+        android:paddingTop="2dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="2dp"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.169" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-thin"
+        android:text="Дополнительно:"
+        android:textSize="26sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.144"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.42" />
+
+    <EditText
+        android:id="@+id/stepValueField"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginEnd="40dp"
+        android:layout_marginRight="40dp"
+        android:background="@drawable/border_textview"
+        android:drawableEnd="@drawable/step"
+        android:drawableRight="@drawable/step"
+        android:fontFamily="sans-serif-thin"
+        android:hint="Шаг "
+        android:inputType="number"
+        android:paddingStart="10dp"
+        android:paddingLeft="20dp"
+        android:paddingTop="2dp"
+        android:paddingEnd="10dp"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/finishValueField"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.497" />
+
+    <View
+        style="@style/Divider"
+        android:layout_marginBottom="200dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <EditText
+        android:id="@+id/finishValueField"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/border_textview"
+        android:drawableEnd="@drawable/finish"
+        android:drawableRight="@drawable/finish"
+        android:fontFamily="sans-serif-thin"
+        android:hint="Финиш "
+        android:inputType="number"
+        android:paddingStart="10dp"
+        android:paddingLeft="10dp"
+        android:paddingTop="2dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="2dp"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/stepValueField"
+        app:layout_constraintStart_toEndOf="@+id/startValueField"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.497" />
+
+    <Switch
+        android:id="@+id/timerSwitch"
+        android:layout_width="150dp"
+        android:layout_height="36dp"
+        android:fontFamily="sans-serif-thin"
+        android:switchMinWidth="50dp"
+        android:text="Таймер"
+        android:textSize="26sp"
+        android:thumb="@drawable/switch_thumb_selector"
+        android:track="@drawable/switch_track_selector"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.122"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.587" />
+
+    <Switch
+        android:id="@+id/stopwatchSwitch"
+        android:layout_width="200dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginBottom="236dp"
+        android:fontFamily="sans-serif-thin"
+        android:switchMinWidth="50dp"
+        android:text="Секундомер"
+        android:textSize="26sp"
+        android:thumb="@drawable/switch_thumb_selector"
+        android:track="@drawable/switch_track_selector"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <EditText
+        android:id="@+id/startValueField"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/border_textview"
+        android:drawableEnd="@drawable/start"
+        android:drawableRight="@drawable/start"
+        android:fontFamily="sans-serif-thin"
+        android:hint="Старт "
+        android:inputType="number"
+        android:paddingStart="10dp"
+        android:paddingLeft="10dp"
+        android:paddingTop="2dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="2dp"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/finishValueField"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.497" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-thin"
+        android:text="Количество полей:"
+        android:textSize="26sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.168"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.274" />
+
+    <View
+        android:layout_width="23dp"
+        android:layout_height="23dp"
+        android:background="@drawable/white_back"
+        app:layout_constraintBottom_toBottomOf="@+id/radioButton1"
+        app:layout_constraintEnd_toEndOf="@+id/radioButton1"
+        app:layout_constraintHorizontal_bias="0.523"
+        app:layout_constraintStart_toStartOf="@+id/radioButton1"
+        app:layout_constraintTop_toTopOf="@+id/radioButton1"
+        app:layout_constraintVertical_bias="0.476" />
+
+    <RadioButton
+        android:id="@+id/radioButton3"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginStart="228dp"
+        android:layout_marginLeft="228dp"
+        android:background="?android:attr/listChoiceIndicatorMultiple"
+        android:button="@null"
+        android:theme="@style/defaultBlueCheckBox"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.336" />
+
+    <View
+        android:layout_width="22dp"
+        android:layout_height="21dp"
+        android:background="@drawable/white_back"
+        app:layout_constraintBottom_toBottomOf="@+id/radioButton3"
+        app:layout_constraintEnd_toEndOf="@+id/radioButton3"
+        app:layout_constraintStart_toStartOf="@+id/radioButton3"
+        app:layout_constraintTop_toTopOf="@+id/radioButton3"
+        app:layout_constraintVertical_bias="0.478" />
+
+    <RadioButton
+        android:id="@+id/radioButton2"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginStart="140dp"
+        android:layout_marginLeft="140dp"
+        android:background="?android:attr/listChoiceIndicatorMultiple"
+        android:button="@null"
+        android:theme="@style/defaultBlueCheckBox"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.336" />
+
+    <RadioButton
+        android:id="@+id/radioButton4"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginStart="316dp"
+        android:layout_marginLeft="316dp"
+        android:background="?android:attr/listChoiceIndicatorMultiple"
+        android:button="@null"
+        android:theme="@style/defaultBlueCheckBox"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.333" />
+
+    <View
+        android:layout_width="21dp"
+        android:layout_height="22dp"
+        android:background="@drawable/white_back"
+        app:layout_constraintBottom_toBottomOf="@+id/radioButton4"
+        app:layout_constraintEnd_toEndOf="@+id/radioButton4"
+        app:layout_constraintHorizontal_bias="0.521"
+        app:layout_constraintStart_toStartOf="@+id/radioButton4"
+        app:layout_constraintTop_toTopOf="@+id/radioButton4" />
+
+    <TextView
+        android:id="@+id/textView20"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="120dp"
+        android:layout_marginLeft="120dp"
+        android:fontFamily="sans-serif-thin"
+        android:text="2"
+        android:textSize="36sp"
+        app:layout_constraintBottom_toTopOf="@+id/radioButton3"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/radioButton3"
+        app:layout_constraintVertical_bias="0.526" />
+
+    <TextView
+        android:id="@+id/textView21"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="208dp"
+        android:layout_marginLeft="208dp"
+        android:fontFamily="sans-serif-thin"
+        android:text="3"
+        android:textSize="36sp"
+        app:layout_constraintBottom_toTopOf="@+id/radioButton4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/radioButton4"
+        app:layout_constraintVertical_bias="0.505" />
+
+    <TextView
+        android:id="@+id/textView22"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="296dp"
+        android:layout_marginLeft="296dp"
+        android:fontFamily="sans-serif-thin"
+        android:text="4"
+        android:textSize="36sp"
+        app:layout_constraintBottom_toTopOf="@+id/radioButton4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/radioButton4"
+        app:layout_constraintVertical_bias="0.526" />
+
+    <TextView
+        android:id="@+id/textView23"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-thin"
+        android:text="1"
+        android:textSize="36sp"
+        app:layout_constraintBottom_toTopOf="@+id/radioButton1"
+        app:layout_constraintEnd_toEndOf="@+id/radioButton1"
+        app:layout_constraintHorizontal_bias="0.421"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/radioButton1"
+        app:layout_constraintVertical_bias="0.526" />
+
+    <View
+        android:layout_width="21dp"
+        android:layout_height="22dp"
+        android:background="@drawable/white_back"
+        app:layout_constraintBottom_toBottomOf="@+id/radioButton2"
+        app:layout_constraintEnd_toEndOf="@+id/radioButton2"
+        app:layout_constraintHorizontal_bias="0.521"
+        app:layout_constraintStart_toStartOf="@+id/radioButton2"
+        app:layout_constraintTop_toTopOf="@+id/radioButton2" />
+
+    <RadioButton
+        android:id="@+id/radioButton1"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginStart="52dp"
+        android:layout_marginLeft="52dp"
+        android:background="?android:attr/listChoiceIndicatorMultiple"
+        android:button="@null"
+        android:checked="true"
+        android:theme="@style/defaultBlueCheckBox"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.33" />
+
+    <EditText
+        android:id="@+id/editText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="time"
+        tools:layout_editor_absoluteX="190dp"
+        tools:layout_editor_absoluteY="404dp" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
