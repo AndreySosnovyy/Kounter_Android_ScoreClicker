@@ -1,0 +1,54 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center">
+
+    <NumberPicker
+        android:id="@+id/numberPickerHours"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:theme="@style/NumberPicker"
+        android:layout_marginLeft="30dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ч"
+        android:textSize="26sp"
+        android:fontFamily="sans-serif-thin"
+        android:textColor="@color/unchecked_blue"/>
+
+    <NumberPicker
+        android:id="@+id/numberPickerMinutes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="24dp"
+        android:theme="@style/NumberPicker"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="м"
+        android:textSize="26sp"
+        android:fontFamily="sans-serif-thin"
+        android:layout_marginRight="24dp"
+        android:textColor="@color/unchecked_blue"/>
+
+    <NumberPicker
+        android:id="@+id/numberPickerSeconds"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:theme="@style/NumberPicker"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="с"
+        android:textSize="26sp"
+        android:fontFamily="sans-serif-thin"
+        android:layout_marginRight="30dp"
+        android:textColor="@color/unchecked_blue"/>
+
+
+</LinearLayout>

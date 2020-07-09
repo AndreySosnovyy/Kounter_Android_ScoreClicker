@@ -1,31 +1,11 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/blue</item>
-        <item name="colorPrimaryDark">@color/darkBlue</item>
-        <item name="colorAccent">@color/unchecked_blue</item>
-    </style>
-
-    <style name="CheckBox1" parent="Theme.AppCompat.Light">
-        <item name="colorControlNormal">@color/unchecked_green</item>
-        <item name="colorControlActivated">@color/green</item>
-    </style>
-
-    <style name="CheckBox2" parent="Theme.AppCompat.Light">
-        <item name="colorControlNormal">@color/unchecked_yellow</item>
-        <item name="colorControlActivated">@color/yellow</item>
-    </style>
-
-    <style name="CheckBox3" parent="Theme.AppCompat.Light">
-        <item name="colorControlNormal">@color/unchecked_orange</item>
-        <item name="colorControlActivated">@color/lightOrange</item>
-    </style>
-
-    <style name="CheckBox4" parent="Theme.AppCompat.Light">
-        <item name="colorControlNormal">@color/unchecked_red</item>
-        <item name="colorControlActivated">@color/red</item>
+        <item name="colorPrimaryDark">@color/blue</item>
+        <item name="colorAccent">@color/blue</item>
     </style>
 
     <style name="defaultBlueCheckBox" parent="Theme.AppCompat.Light">
@@ -33,28 +13,12 @@
         <item name="colorControlActivated">@color/blue</item>
     </style>
 
-    <style name="defaultGreenBlueCheckBox" parent="Theme.AppCompat.Light">
-        <item name="colorControlNormal">@color/unchecked_greenBlue</item>
-        <item name="colorControlActivated">@color/greenBlue</item>
-    </style>
-
-    <style name="Switch" >
-        <item name="colorControlActivated">@color/blue</item>
-        <item name="trackTint">@color/unchecked_blue</item>
-        <item name="android:thumb">@drawable/switch_thumb</item>
-    </style>
-
-    <style name="Divider">
-        <item name="android:layout_width">300dp</item>
-        <item name="android:layout_height">1dp</item>
-        <item name="android:background">@color/blue</item>
-    </style>
-
-    <style name="TimePicker">
-        <item name="android:background">@color/white</item>
-        <item name="android:headerBackground">@color/blue</item>
-        <item name="android:colorAccent">@color/unchecked_blue</item>
+    <style name="NumberPicker">
+        <item name="colorAccent">@color/white</item>
+        <item name="colorControlNormal">@android:color/transparent</item>
+        <item name="android:textColorPrimary">@color/blue</item>
         <item name="fontFamily">sans-serif-thin</item>
+        <item name="android:textSize">40sp</item>
     </style>
 
 </resources>

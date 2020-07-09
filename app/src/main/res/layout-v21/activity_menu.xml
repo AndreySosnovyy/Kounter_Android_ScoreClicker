@@ -5,124 +5,141 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:fontFamily="sans-serif-thin"
-        android:text="Создать"
-        android:textSize="46sp"
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/nameField"
-        android:layout_width="352dp"
-        android:layout_height="52dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginLeft="40dp"
-        android:layout_marginEnd="40dp"
-        android:layout_marginRight="40dp"
+        android:layout_width="330dp"
+        android:layout_height="48dp"
         android:background="@drawable/border_textview"
-        android:fontFamily="sans-serif-thin"
-        android:hint=" Название счетчика"
+        android:fontFamily="@font/roboto"
+        android:hint="Название счётчика"
         android:paddingStart="10dp"
-        android:paddingLeft="10dp"
         android:paddingTop="2dp"
         android:paddingEnd="10dp"
         android:paddingBottom="2dp"
-        android:textSize="30sp"
+        android:textColorHint="@color/grey_hint"
+        android:textSize="26sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.493"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.169" />
+        app:layout_constraintVertical_bias="0.115" />
+
+    <RadioButton
+        android:id="@+id/radioButton4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:background="@null"
+        android:button="@drawable/radio_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/radioButton3"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.198" />
+
+    <RadioButton
+        android:id="@+id/radioButton2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:background="@null"
+        android:button="@drawable/radio_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/radioButton1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.198" />
+
+    <RadioButton
+        android:id="@+id/radioButton1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:background="@null"
+        android:button="@drawable/radio_button"
+        android:checked="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textView"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.198" />
+
+    <RadioButton
+        android:id="@+id/radioButton3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:background="@null"
+        android:button="@drawable/radio_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/radioButton2"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.198" />
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-thin"
+        android:fontFamily="@font/roboto"
         android:text="Дополнительно:"
-        android:textSize="26sp"
+        android:textColor="@color/grey_font"
+        android:textSize="23sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.144"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.42" />
+        app:layout_constraintVertical_bias="0.262" />
 
     <EditText
-        android:id="@+id/stepValueField"
+        android:id="@+id/startValueField"
         android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginEnd="40dp"
-        android:layout_marginRight="40dp"
-        android:background="@drawable/border_textview"
-        android:drawableEnd="@drawable/step"
-        android:drawableRight="@drawable/step"
-        android:fontFamily="sans-serif-thin"
-        android:hint="Шаг "
-        android:inputType="number"
-        android:paddingStart="10dp"
-        android:paddingLeft="20dp"
-        android:paddingTop="2dp"
-        android:paddingEnd="10dp"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/finishValueField"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.497" />
-
-    <View
-        style="@style/Divider"
-        android:layout_marginBottom="200dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <EditText
-        android:id="@+id/finishValueField"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginLeft="10dp"
+        android:layout_height="42dp"
+        android:layout_marginStart="40dp"
         android:layout_marginEnd="10dp"
-        android:layout_marginRight="10dp"
         android:background="@drawable/border_textview"
-        android:drawableEnd="@drawable/finish"
-        android:drawableRight="@drawable/finish"
-        android:fontFamily="sans-serif-thin"
-        android:hint="Финиш "
+        android:drawableEnd="@drawable/start"
+        android:fontFamily="@font/roboto"
+        android:hint="Старт "
         android:inputType="number"
         android:paddingStart="10dp"
-        android:paddingLeft="10dp"
         android:paddingTop="2dp"
         android:paddingEnd="10dp"
         android:paddingBottom="2dp"
-        android:textSize="20sp"
+        android:textColor="@color/grey_font"
+        android:textColorHint="@color/grey_hint"
+        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/stepValueField"
-        app:layout_constraintStart_toEndOf="@+id/startValueField"
+        app:layout_constraintEnd_toStartOf="@+id/finishValueField"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.497" />
+        app:layout_constraintVertical_bias="0.339" />
+
+    <View
+        android:id="@+id/view2"
+        android:layout_width="70dp"
+        android:layout_height="0.5dp"
+        android:background="@color/blue"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/textView2"
+        app:layout_constraintHorizontal_bias="0.8"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.276" />
 
     <Switch
         android:id="@+id/timerSwitch"
         android:layout_width="150dp"
         android:layout_height="36dp"
-        android:fontFamily="sans-serif-thin"
+        android:fontFamily="@font/roboto"
         android:switchMinWidth="50dp"
         android:text="Таймер"
-        android:textSize="26sp"
+        android:textColor="@color/grey_font"
+        android:textSize="24sp"
         android:thumb="@drawable/switch_thumb_selector"
         android:track="@drawable/switch_track_selector"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -130,226 +147,217 @@
         app:layout_constraintHorizontal_bias="0.122"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.587" />
+        app:layout_constraintVertical_bias="0.414" />
 
     <Switch
         android:id="@+id/stopwatchSwitch"
         android:layout_width="200dp"
         android:layout_height="36dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginLeft="32dp"
-        android:layout_marginBottom="236dp"
-        android:fontFamily="sans-serif-thin"
+        android:fontFamily="@font/roboto"
         android:switchMinWidth="50dp"
         android:text="Секундомер"
-        android:textSize="26sp"
+        android:textColor="@color/grey_font"
+        android:textSize="24sp"
         android:thumb="@drawable/switch_thumb_selector"
         android:track="@drawable/switch_track_selector"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.151"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.477" />
+
+    <View
+        android:id="@+id/view"
+        android:layout_height="0.5dp"
+        android:layout_width="330dp"
+        android:background="@color/blue"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.597" />
+
+    <Button
+        android:id="@+id/createCounterButton"
+        android:layout_width="wrap_content"
+        android:layout_height="42dp"
+        android:background="@drawable/unclickable_create_button"
+        android:clickable="false"
+        android:fontFamily="@font/roboto"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:text="Создать"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/toolbar"
+        app:layout_constraintVertical_bias="0.544" />
+
+    <Button
+        android:id="@+id/pickTimeButton"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="168dp"
+        android:layout_height="38dp"
+        android:background="@drawable/pick_time_button"
+        android:clickable="false"
+        android:fontFamily="@font/roboto"
+        android:text="Выбрать время"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="22sp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.377"
+        app:layout_constraintStart_toEndOf="@+id/timerSwitch"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.414" />
 
     <EditText
-        android:id="@+id/startValueField"
+        android:id="@+id/stepValueField"
         android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginLeft="40dp"
+        android:layout_height="42dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="40dp"
+        android:background="@drawable/border_textview"
+        android:drawableEnd="@drawable/step"
+        android:fontFamily="@font/roboto"
+        android:hint="Шаг "
+        android:inputType="number"
+        android:paddingStart="10dp"
+        android:paddingTop="2dp"
+        android:paddingEnd="10dp"
+        android:textColor="@color/grey_font"
+        android:textColorHint="@color/grey_hint"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/finishValueField"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.339" />
+
+    <View
+        android:layout_width="70dp"
+        android:layout_height="0.5dp"
+        android:background="@color/blue"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.2"
+        app:layout_constraintStart_toEndOf="@+id/textView2"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.276" />
+
+    <EditText
+        android:id="@+id/finishValueField"
+        android:layout_width="wrap_content"
+        android:layout_height="42dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
         android:layout_marginEnd="10dp"
         android:layout_marginRight="10dp"
         android:background="@drawable/border_textview"
-        android:drawableEnd="@drawable/start"
-        android:drawableRight="@drawable/start"
-        android:fontFamily="sans-serif-thin"
-        android:hint="Старт "
+        android:drawableEnd="@drawable/finish"
+        android:fontFamily="@font/roboto"
+        android:hint="Финиш "
         android:inputType="number"
         android:paddingStart="10dp"
-        android:paddingLeft="10dp"
         android:paddingTop="2dp"
         android:paddingEnd="10dp"
         android:paddingBottom="2dp"
-        android:textSize="20sp"
+        android:textColor="@color/grey_font"
+        android:textColorHint="@color/grey_hint"
+        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/finishValueField"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/stepValueField"
+        app:layout_constraintStart_toEndOf="@+id/startValueField"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.497" />
+        app:layout_constraintVertical_bias="0.339" />
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-thin"
+        android:fontFamily="@font/roboto"
         android:text="Количество полей:"
-        android:textSize="26sp"
+        android:textColor="@color/grey_font"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.168"
+        app:layout_constraintHorizontal_bias="0.184"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.274" />
+        app:layout_constraintVertical_bias="0.193" />
 
-    <View
-        android:layout_width="23dp"
-        android:layout_height="23dp"
-        android:background="@drawable/white_back"
-        app:layout_constraintBottom_toBottomOf="@+id/radioButton1"
-        app:layout_constraintEnd_toEndOf="@+id/radioButton1"
-        app:layout_constraintHorizontal_bias="0.523"
-        app:layout_constraintStart_toStartOf="@+id/radioButton1"
-        app:layout_constraintTop_toTopOf="@+id/radioButton1"
-        app:layout_constraintVertical_bias="0.476" />
-
-    <RadioButton
-        android:id="@+id/radioButton3"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:layout_marginStart="228dp"
-        android:layout_marginLeft="228dp"
-        android:background="?android:attr/listChoiceIndicatorMultiple"
-        android:button="@null"
-        android:theme="@style/defaultBlueCheckBox"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.336" />
-
-    <View
-        android:layout_width="22dp"
-        android:layout_height="21dp"
-        android:background="@drawable/white_back"
+    <TextView
+        android:id="@+id/radioButton3textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="2dp"
+        android:fontFamily="@font/roboto"
+        android:text="3"
+        android:textColor="@color/blue"
+        android:textSize="22sp"
         app:layout_constraintBottom_toBottomOf="@+id/radioButton3"
         app:layout_constraintEnd_toEndOf="@+id/radioButton3"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@+id/radioButton3"
         app:layout_constraintTop_toTopOf="@+id/radioButton3"
-        app:layout_constraintVertical_bias="0.478" />
-
-    <RadioButton
-        android:id="@+id/radioButton2"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:layout_marginStart="140dp"
-        android:layout_marginLeft="140dp"
-        android:background="?android:attr/listChoiceIndicatorMultiple"
-        android:button="@null"
-        android:theme="@style/defaultBlueCheckBox"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.336" />
-
-    <RadioButton
-        android:id="@+id/radioButton4"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:layout_marginStart="316dp"
-        android:layout_marginLeft="316dp"
-        android:background="?android:attr/listChoiceIndicatorMultiple"
-        android:button="@null"
-        android:theme="@style/defaultBlueCheckBox"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.333" />
-
-    <View
-        android:layout_width="21dp"
-        android:layout_height="22dp"
-        android:background="@drawable/white_back"
-        app:layout_constraintBottom_toBottomOf="@+id/radioButton4"
-        app:layout_constraintEnd_toEndOf="@+id/radioButton4"
-        app:layout_constraintHorizontal_bias="0.521"
-        app:layout_constraintStart_toStartOf="@+id/radioButton4"
-        app:layout_constraintTop_toTopOf="@+id/radioButton4" />
+        app:layout_constraintVertical_bias="0.5" />
 
     <TextView
-        android:id="@+id/textView20"
+        android:id="@+id/radioButton1textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="120dp"
-        android:layout_marginLeft="120dp"
-        android:fontFamily="sans-serif-thin"
-        android:text="2"
-        android:textSize="36sp"
-        app:layout_constraintBottom_toTopOf="@+id/radioButton3"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/radioButton3"
-        app:layout_constraintVertical_bias="0.526" />
-
-    <TextView
-        android:id="@+id/textView21"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="208dp"
-        android:layout_marginLeft="208dp"
-        android:fontFamily="sans-serif-thin"
-        android:text="3"
-        android:textSize="36sp"
-        app:layout_constraintBottom_toTopOf="@+id/radioButton4"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/radioButton4"
-        app:layout_constraintVertical_bias="0.505" />
-
-    <TextView
-        android:id="@+id/textView22"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="296dp"
-        android:layout_marginLeft="296dp"
-        android:fontFamily="sans-serif-thin"
-        android:text="4"
-        android:textSize="36sp"
-        app:layout_constraintBottom_toTopOf="@+id/radioButton4"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/radioButton4"
-        app:layout_constraintVertical_bias="0.526" />
-
-    <TextView
-        android:id="@+id/textView23"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-thin"
+        android:layout_marginBottom="2dp"
+        android:fontFamily="@font/roboto"
         android:text="1"
-        android:textSize="36sp"
-        app:layout_constraintBottom_toTopOf="@+id/radioButton1"
+        android:textColor="@color/white"
+        android:textSize="22sp"
+        app:layout_constraintBottom_toBottomOf="@+id/radioButton1"
         app:layout_constraintEnd_toEndOf="@+id/radioButton1"
-        app:layout_constraintHorizontal_bias="0.421"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/radioButton1"
-        app:layout_constraintVertical_bias="0.526" />
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/radioButton1"
+        app:layout_constraintTop_toTopOf="@+id/radioButton1"
+        app:layout_constraintVertical_bias="0.5" />
 
-    <View
-        android:layout_width="21dp"
-        android:layout_height="22dp"
-        android:background="@drawable/white_back"
+
+    <TextView
+        android:id="@+id/radioButton2textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="2dp"
+        android:fontFamily="@font/roboto"
+        android:text="2"
+        android:textColor="@color/blue"
+        android:textSize="22sp"
         app:layout_constraintBottom_toBottomOf="@+id/radioButton2"
         app:layout_constraintEnd_toEndOf="@+id/radioButton2"
-        app:layout_constraintHorizontal_bias="0.521"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@+id/radioButton2"
-        app:layout_constraintTop_toTopOf="@+id/radioButton2" />
+        app:layout_constraintTop_toTopOf="@+id/radioButton2"
+        app:layout_constraintVertical_bias="0.5" />
 
-    <RadioButton
-        android:id="@+id/radioButton1"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:layout_marginStart="52dp"
-        android:layout_marginLeft="52dp"
-        android:background="?android:attr/listChoiceIndicatorMultiple"
-        android:button="@null"
-        android:checked="true"
-        android:theme="@style/defaultBlueCheckBox"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.33" />
-
-    <EditText
-        android:id="@+id/editText"
+    <TextView
+        android:id="@+id/radioButton4textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="time"
-        tools:layout_editor_absoluteX="190dp"
-        tools:layout_editor_absoluteY="404dp" />
+        android:layout_marginEnd="2dp"
+        android:layout_marginBottom="2dp"
+        android:fontFamily="@font/roboto"
+        android:text="4"
+        android:textColor="@color/blue"
+        android:textSize="22sp"
+        app:layout_constraintBottom_toBottomOf="@+id/radioButton4"
+        app:layout_constraintEnd_toEndOf="@+id/radioButton4"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/radioButton4"
+        app:layout_constraintTop_toTopOf="@+id/radioButton4"
+        app:layout_constraintVertical_bias="0.5" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
