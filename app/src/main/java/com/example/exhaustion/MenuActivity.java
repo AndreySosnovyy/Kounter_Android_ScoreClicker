@@ -31,7 +31,7 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
     TextView radioButton1textView, radioButton2textView, radioButton3textView, radioButton4textView;
     Button pickTimeButton, createCounterButton;
     Toolbar toolbar;
-
+    View timerLineOff, timerLineOn, stopwatchLineOff, stopwatchLineOn;
     CompoundButton previousRB;
     Animation scaleAnimation, reverseScaleAnimation, pickTimeButtonAnimation, pickTimeButtonAnimationReverse;
 
@@ -57,6 +57,10 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
         radioButton3textView = findViewById(R.id.radioButton3textView);
         radioButton4textView = findViewById(R.id.radioButton4textView);
         toolbar = findViewById(R.id.toolbar);
+        timerLineOff = findViewById(R.id.timer_view_line_off);
+        timerLineOn = findViewById(R.id.timer_view_line_on);
+        stopwatchLineOff = findViewById(R.id.stopwatch_view_line_off);
+        stopwatchLineOn = findViewById(R.id.stopwatch_view_line_on);
 
         startValueField.setFilters(new InputFilter[] {new InputFilter.LengthFilter(5)});
         finishValueField.setFilters(new InputFilter[] {new InputFilter.LengthFilter(5)});
@@ -98,6 +102,10 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
                 if (nameField.getText().toString().equals(""))
                 {
                     Toast.makeText(getApplicationContext(), "Введите название счётчика", Toast.LENGTH_SHORT).show();
+                }
+                else if (timerSwitch.isChecked() && timerHours == 0 && timerMinutes == 0 && timerSeconds == 0)
+                {
+                    Toast.makeText(getApplicationContext(), "Выберите время для таймера", Toast.LENGTH_SHORT).show();
                 }
                 else
                 {
@@ -236,9 +244,17 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
                     pickTimeButton.setVisibility(View.VISIBLE);
                     pickTimeButton.setClickable(true);
                     pickTimeButton.startAnimation(pickTimeButtonAnimation);
+                    timerLineOff.setVisibility(View.INVISIBLE);
+                    timerLineOn.setVisibility(View.VISIBLE);
+                    if (timerHours == 0 && timerMinutes == 0 && timerSeconds == 0)
+                    {
+                        createCounterButton.setBackground(getResources().getDrawable(R.drawable.unclickable_create_button));
+                    }
                 }
                 else
                 {
+                    timerLineOff.setVisibility(View.VISIBLE);
+                    timerLineOn.setVisibility(View.INVISIBLE);
                     pickTimeButton.startAnimation(pickTimeButtonAnimationReverse);
                     pickTimeButton.postDelayed(new Runnable() {
                         @Override
@@ -256,6 +272,8 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked && timerSwitch.isChecked())
                 {
+                    stopwatchLineOff.setVisibility(View.INVISIBLE);
+                    stopwatchLineOn.setVisibility(View.VISIBLE);
                     timerSwitch.setChecked(false);
                     pickTimeButton.startAnimation(pickTimeButtonAnimationReverse);
                     pickTimeButton.postDelayed(new Runnable() {
@@ -265,6 +283,16 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
                             pickTimeButton.setClickable(false);
                         }
                     }, 90);
+                }
+                else if (isChecked)
+                {
+                    stopwatchLineOff.setVisibility(View.INVISIBLE);
+                    stopwatchLineOn.setVisibility(View.VISIBLE);
+                }
+                else
+                {
+                    stopwatchLineOff.setVisibility(View.VISIBLE);
+                    stopwatchLineOn.setVisibility(View.INVISIBLE);
                 }
             }
         });
@@ -282,22 +310,24 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
 
     @Override
     public void getTime(int hours, int minutes, int seconds) {
-        //Toast.makeText(this, hours + " " + minutes + " " + seconds, Toast.LENGTH_SHORT).show();
+
+        timerHours = hours;
+        timerMinutes = minutes;
+        timerSeconds = seconds;
+
         if (!(hours == 0 && minutes == 0 && seconds == 0))
         {
-            timerHours = hours;
-            timerMinutes = minutes;
-            timerSeconds = seconds;
-
             pickTimeButton.setText(hours + "ч " + minutes + "м " + seconds + "с");
             pickTimeButton.setBackground(getResources().getDrawable(R.drawable.piked_time_button));
             pickTimeButton.setTextColor(getResources().getColor(R.color.blue));
+            createCounterButton.setBackground(getResources().getDrawable(R.drawable.pick_time_button));
         }
         else
         {
             pickTimeButton.setText("Выбрать время");
             pickTimeButton.setBackground(getResources().getDrawable(R.drawable.pick_time_button));
             pickTimeButton.setTextColor(getResources().getColor(R.color.white));
+            createCounterButton.setBackground(getResources().getDrawable(R.drawable.unclickable_create_button));
         }
     }
 }

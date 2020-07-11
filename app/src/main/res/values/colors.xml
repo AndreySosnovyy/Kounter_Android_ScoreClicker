@@ -24,4 +24,6 @@
     <color name="black">#000000</color>
     <color name="grey_font">#333333</color>
     <color name="grey_hint">#8D8D8D</color>
+    <color name="grey_light">#DDDDDD</color>
+    <color name="background_color">#F8F8F8</color>
 </resources>

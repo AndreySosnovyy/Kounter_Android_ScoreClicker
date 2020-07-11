@@ -1,34 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background_color"
     tools:context=".MainActivity">
 
     <include
         android:id="@+id/toolbar"
-        layout="@layout/toolbar"/>
+        layout="@layout/toolbar" />
 
-    <LinearLayout
-        android:id="@+id/linearLayout3"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
+    <Button
+        android:id="@+id/counterButton"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="412dp"
+        android:layout_height="624dp"
+        android:background="@color/background_color"
+        android:fontFamily="@font/roboto"
+        android:paddingBottom="100dp"
+        android:text="@string/counterStartValue"
+        android:textColor="@color/blue"
+        android:textSize="174sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/timeScreenHead" />
 
-        <Button
-            android:id="@+id/counterButton"
-            style="@style/Widget.AppCompat.Button.Borderless"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fontFamily="sans-serif-thin"
-            android:text="@string/counterStartValue"
-            android:textColor="@color/blue"
-            android:textSize="174sp"
-            android:background="@color/white"/>
-    </LinearLayout>
+    <TextView
+        android:id="@+id/timeScreenHead"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/timer_stopwatch_screenhead"
+        android:fontFamily="@font/roboto"
+        android:gravity="center"
+        android:paddingBottom="5dp"
+        android:text=""
+        android:textColor="@color/white"
+        android:textSize="32sp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
+    <TextView
+        android:id="@+id/startTimerTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/roboto"
+        android:text="Нажмите, чтобы начать таймер"
+        android:textColor="@color/grey_hint"
+        android:textSize="20sp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/counterButton"
+        app:layout_constraintEnd_toStartOf="@+id/counterButton"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/counterButton"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.782" />
+
+    <TextView
+        android:id="@+id/timerPicture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/counterButton"
+        app:layout_constraintEnd_toStartOf="@+id/startTimerTextView"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/startTimerTextView"
+        app:layout_constraintTop_toTopOf="@+id/toolbar"
+        app:layout_constraintVertical_bias="0.875"
+        android:drawableRight="@drawable/ic_timer_red_24dp"
+        android:text="Время вышло"
+        android:drawablePadding="8dp"
+        android:textColor="@color/grey_light"
+        android:fontFamily="@font/roboto"
+        android:textSize="26sp"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
