@@ -1,8 +1,10 @@
 package com.example.exhaustion;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -34,6 +36,21 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
     View timerLineOff, timerLineOn, stopwatchLineOff, stopwatchLineOn;
     CompoundButton previousRB;
     Animation scaleAnimation, reverseScaleAnimation, pickTimeButtonAnimation, pickTimeButtonAnimationReverse;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_for_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.settings)
+        {
+            // новый лэйаут для настроек
+        }
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,9 +89,8 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
         pickTimeButtonAnimation = AnimationUtils.loadAnimation(this, R.anim.pick_time_button_anim);
         pickTimeButtonAnimationReverse = AnimationUtils.loadAnimation(this, R.anim.pick_time_button_anim_reverse);
 
+        toolbar.setTitle("      Kounter");
         setSupportActionBar(toolbar);
-
-
 
         nameField.addTextChangedListener(new TextWatcher() {
             @Override
@@ -263,6 +279,10 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
                             pickTimeButton.setClickable(false);
                         }
                     }, 90);
+                    if (!nameField.getText().toString().equals(""))
+                    {
+                        createCounterButton.setBackground(getResources().getDrawable(R.drawable.pick_time_button));
+                    }
                 }
             }
         });
@@ -288,6 +308,10 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
                 {
                     stopwatchLineOff.setVisibility(View.INVISIBLE);
                     stopwatchLineOn.setVisibility(View.VISIBLE);
+                    if (!nameField.getText().toString().equals(""))
+                    {
+                        createCounterButton.setBackground(getResources().getDrawable(R.drawable.pick_time_button));
+                    }
                 }
                 else
                 {

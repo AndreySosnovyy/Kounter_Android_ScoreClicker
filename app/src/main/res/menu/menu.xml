@@ -4,6 +4,12 @@
 
     <item
         android:title="reset"
+        android:id="@+id/rotation"
+        android:icon="@drawable/ic_screen_rotation_24dp"
+        app:showAsAction="always"/>
+
+    <item
+        android:title="reset"
         android:id="@+id/reset"
         android:icon="@drawable/ic_refresh_black_24dp"
         app:showAsAction="always"/>

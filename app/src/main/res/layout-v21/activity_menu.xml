@@ -26,6 +26,7 @@
         android:paddingBottom="2dp"
         android:textColorHint="@color/grey_hint"
         android:textSize="26sp"
+        android:textColor="@color/grey_font"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.493"

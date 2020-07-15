@@ -27,7 +27,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/timeScreenHead" />
 
-    <TextView
+    <Chronometer
         android:id="@+id/timeScreenHead"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -64,18 +64,51 @@
         android:id="@+id/timerPicture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:drawableRight="@drawable/ic_timer_red_24dp"
+        android:drawablePadding="8dp"
+        android:fontFamily="@font/roboto"
+        android:text="Время вышло"
+        android:textColor="@color/grey_light"
+        android:textSize="26sp"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/counterButton"
         app:layout_constraintEnd_toStartOf="@+id/startTimerTextView"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/startTimerTextView"
         app:layout_constraintTop_toTopOf="@+id/toolbar"
-        app:layout_constraintVertical_bias="0.875"
-        android:drawableRight="@drawable/ic_timer_red_24dp"
-        android:text="Время вышло"
-        android:drawablePadding="8dp"
-        android:textColor="@color/grey_light"
+        app:layout_constraintVertical_bias="0.875" />
+
+    <TextView
+        android:id="@+id/stopwatchTimeAfterFinishTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:fontFamily="@font/roboto"
-        android:textSize="26sp"/>
+        android:textColor="@color/unchecked_green"
+        android:textSize="36sp"
+        app:layout_constraintBottom_toBottomOf="@+id/counterButton"
+        app:layout_constraintEnd_toStartOf="@+id/viewKonfetti"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/viewKonfetti"
+        app:layout_constraintTop_toTopOf="@+id/toolbar"
+        app:layout_constraintVertical_bias="0.677" />
+
+    <TextView
+        android:id="@+id/finishTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/roboto"
+        android:textColor="@color/grey_light"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.092"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.96" />
+
+    <nl.dionsegijn.konfetti.KonfettiView
+        android:id="@+id/viewKonfetti"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
