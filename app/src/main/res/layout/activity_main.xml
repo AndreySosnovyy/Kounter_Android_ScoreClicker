@@ -68,7 +68,7 @@
         android:drawablePadding="8dp"
         android:fontFamily="@font/roboto"
         android:text="Время вышло"
-        android:textColor="@color/grey_light"
+        android:textColor="@color/unchecked_red"
         android:textSize="26sp"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/counterButton"

@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">Counter</string>
+    <string name="app_name">Kounter</string>
     <string name="counterStartValue">0</string>
 </resources>
