@@ -1,10 +1,9 @@
 package com.example.exhaustion;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.DialogInterface;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -22,6 +21,7 @@ import android.widget.RadioButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.widget.Toolbar;
 
 
@@ -45,8 +45,7 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.settings)
-        {
+        if (item.getItemId() == R.id.settings) {
             // новый лэйаут для настроек
         }
         return true;
@@ -79,9 +78,9 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
         stopwatchLineOff = findViewById(R.id.stopwatch_view_line_off);
         stopwatchLineOn = findViewById(R.id.stopwatch_view_line_on);
 
-        startValueField.setFilters(new InputFilter[] {new InputFilter.LengthFilter(5)});
-        finishValueField.setFilters(new InputFilter[] {new InputFilter.LengthFilter(5)});
-        stepValueField.setFilters(new InputFilter[] {new InputFilter.LengthFilter(3)});
+        startValueField.setFilters(new InputFilter[]{new InputFilter.LengthFilter(5)});
+        finishValueField.setFilters(new InputFilter[]{new InputFilter.LengthFilter(5)});
+        stepValueField.setFilters(new InputFilter[]{new InputFilter.LengthFilter(3)});
 
         previousRB = radioButton1;
         scaleAnimation = AnimationUtils.loadAnimation(this, R.anim.scale);
@@ -94,81 +93,57 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
 
         nameField.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (count > 0)
-                {
+                if (count > 0) {
                     createCounterButton.setBackground(getResources().getDrawable(R.drawable.pick_time_button));
-                }
-                else
-                {
+                } else {
                     createCounterButton.setBackground(getResources().getDrawable(R.drawable.unclickable_create_button));
                 }
             }
 
             @Override
-            public void afterTextChanged(Editable s) { }
+            public void afterTextChanged(Editable s) {
+            }
         });
 
         createCounterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (nameField.getText().toString().equals(""))
-                {
+                if (nameField.getText().toString().equals("")) {
                     Toast.makeText(getApplicationContext(), "Введите название счётчика", Toast.LENGTH_SHORT).show();
-                }
-                else if (timerSwitch.isChecked() && timerHours == 0 && timerMinutes == 0 && timerSeconds == 0)
-                {
+                } else if (timerSwitch.isChecked() && timerHours == 0 && timerMinutes == 0 && timerSeconds == 0) {
                     Toast.makeText(getApplicationContext(), "Выберите время для таймера", Toast.LENGTH_SHORT).show();
-                }
-                else
-                {
+                } else if (stepValueField.getText().toString().equals("0")) {
+                    Toast.makeText(MenuActivity.this, "Шаг не может быть равен 0", Toast.LENGTH_SHORT).show();
+                } else if (!startValueField.getText().toString().equals("") && !finishValueField.getText().toString().equals("")) {
+                    if (Integer.parseInt(startValueField.getText().toString()) >= Integer.parseInt(finishValueField.getText().toString())) {
+                        Toast.makeText(MenuActivity.this, "Старт должен быть меньше финиша", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
                     Intent intent = new Intent();
 
-                    if (radioButton1.isChecked())
-                    {
+                    if (radioButton1.isChecked()) {
                         intent = new Intent(getApplicationContext(), MainActivity.class);
-                    }
-                    else if (radioButton2.isChecked())
-                    {
+                    } else if (radioButton2.isChecked()) {
                         intent = new Intent(getApplicationContext(), Main2Activity.class);
-                    }
-                    else if (radioButton3.isChecked())
-                    {
+                    } else if (radioButton3.isChecked()) {
                         intent = new Intent(getApplicationContext(), Main3Activity.class);
-                    }
-                    else if (radioButton4.isChecked())
-                    {
+                    } else if (radioButton4.isChecked()) {
                         intent = new Intent(getApplicationContext(), Main4Activity.class);
                     }
 
-                    String startValue, finishValue, stepValue;
-                    if (startValueField.getText().toString().equals(""))
-                    {
-                        startValue = "0";
-                    }
-                    else
-                    {
+                    String startValue = "0", finishValue = String.valueOf(Integer.MAX_VALUE), stepValue = "1";
+                    if (!startValueField.getText().toString().equals("")) {
                         startValue = startValueField.getText().toString();
                     }
-
-                    if (finishValueField.getText().toString().equals(""))
-                    {
-                        finishValue = "" + Integer.MAX_VALUE;
-                    }
-                    else
-                    {
+                    if (!finishValueField.getText().toString().equals("")) {
                         finishValue = finishValueField.getText().toString();
                     }
-
-                    if (stepValueField.getText().toString().equals(""))
-                    {
-                        stepValue = "1";
-                    }
-                    else
-                    {
+                    if (!stepValueField.getText().toString().equals("")) {
                         stepValue = stepValueField.getText().toString();
                     }
 
@@ -189,64 +164,64 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
         radioButton1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (previousRB != buttonView)
-                {
-                    radioButton1.startAnimation(scaleAnimation);
+                if (previousRB != buttonView) {
                     //previousRB.startAnimation(reverseScaleAnimation);
                     radioButton1textView.setTextColor(getResources().getColor(R.color.white));
                     radioButton2textView.setTextColor(getResources().getColor(R.color.blue));
                     radioButton3textView.setTextColor(getResources().getColor(R.color.blue));
                     radioButton4textView.setTextColor(getResources().getColor(R.color.blue));
                     previousRB.setChecked(false);
+                    previousRB.clearAnimation();
                     previousRB = buttonView;
+                    radioButton1.startAnimation(scaleAnimation);
                 }
             }
         });
         radioButton2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (previousRB != buttonView)
-                {
-                    radioButton2.startAnimation(scaleAnimation);
+                if (previousRB != buttonView) {
                     //previousRB.startAnimation(reverseScaleAnimation);
                     radioButton2textView.setTextColor(getResources().getColor(R.color.white));
                     radioButton1textView.setTextColor(getResources().getColor(R.color.blue));
                     radioButton3textView.setTextColor(getResources().getColor(R.color.blue));
                     radioButton4textView.setTextColor(getResources().getColor(R.color.blue));
                     previousRB.setChecked(false);
-                    previousRB = (RadioButton) buttonView;
+                    previousRB.clearAnimation();
+                    previousRB = buttonView;
+                    radioButton2.startAnimation(scaleAnimation);
                 }
             }
         });
         radioButton3.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (previousRB != buttonView)
-                {
-                    radioButton3.startAnimation(scaleAnimation);
+                if (previousRB != buttonView) {
                     //previousRB.startAnimation(reverseScaleAnimation);
                     radioButton3textView.setTextColor(getResources().getColor(R.color.white));
                     radioButton1textView.setTextColor(getResources().getColor(R.color.blue));
                     radioButton2textView.setTextColor(getResources().getColor(R.color.blue));
                     radioButton4textView.setTextColor(getResources().getColor(R.color.blue));
                     previousRB.setChecked(false);
-                    previousRB = (RadioButton) buttonView;
+                    previousRB.clearAnimation();
+                    previousRB = buttonView;
+                    radioButton3.startAnimation(scaleAnimation);
                 }
             }
         });
         radioButton4.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (previousRB != buttonView)
-                {
-                    radioButton4.startAnimation(scaleAnimation);
+                if (previousRB != buttonView) {
                     //previousRB.startAnimation(reverseScaleAnimation);
                     radioButton4textView.setTextColor(getResources().getColor(R.color.white));
                     radioButton1textView.setTextColor(getResources().getColor(R.color.blue));
                     radioButton2textView.setTextColor(getResources().getColor(R.color.blue));
                     radioButton3textView.setTextColor(getResources().getColor(R.color.blue));
                     previousRB.setChecked(false);
-                    previousRB = (RadioButton) buttonView;
+                    previousRB.clearAnimation();
+                    previousRB = buttonView;
+                    radioButton4.startAnimation(scaleAnimation);
                 }
             }
         });
@@ -254,21 +229,17 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
         timerSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked)
-                {
+                if (isChecked) {
                     stopwatchSwitch.setChecked(false);
                     pickTimeButton.setVisibility(View.VISIBLE);
                     pickTimeButton.setClickable(true);
                     pickTimeButton.startAnimation(pickTimeButtonAnimation);
                     timerLineOff.setVisibility(View.INVISIBLE);
                     timerLineOn.setVisibility(View.VISIBLE);
-                    if (timerHours == 0 && timerMinutes == 0 && timerSeconds == 0)
-                    {
+                    if (timerHours == 0 && timerMinutes == 0 && timerSeconds == 0) {
                         createCounterButton.setBackground(getResources().getDrawable(R.drawable.unclickable_create_button));
                     }
-                }
-                else
-                {
+                } else {
                     timerLineOff.setVisibility(View.VISIBLE);
                     timerLineOn.setVisibility(View.INVISIBLE);
                     pickTimeButton.startAnimation(pickTimeButtonAnimationReverse);
@@ -279,8 +250,7 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
                             pickTimeButton.setClickable(false);
                         }
                     }, 90);
-                    if (!nameField.getText().toString().equals(""))
-                    {
+                    if (!nameField.getText().toString().equals("")) {
                         createCounterButton.setBackground(getResources().getDrawable(R.drawable.pick_time_button));
                     }
                 }
@@ -290,8 +260,7 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
         stopwatchSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked && timerSwitch.isChecked())
-                {
+                if (isChecked && timerSwitch.isChecked()) {
                     stopwatchLineOff.setVisibility(View.INVISIBLE);
                     stopwatchLineOn.setVisibility(View.VISIBLE);
                     timerSwitch.setChecked(false);
@@ -303,18 +272,13 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
                             pickTimeButton.setClickable(false);
                         }
                     }, 90);
-                }
-                else if (isChecked)
-                {
+                } else if (isChecked) {
                     stopwatchLineOff.setVisibility(View.INVISIBLE);
                     stopwatchLineOn.setVisibility(View.VISIBLE);
-                    if (!nameField.getText().toString().equals(""))
-                    {
+                    if (!nameField.getText().toString().equals("")) {
                         createCounterButton.setBackground(getResources().getDrawable(R.drawable.pick_time_button));
                     }
-                }
-                else
-                {
+                } else {
                     stopwatchLineOff.setVisibility(View.VISIBLE);
                     stopwatchLineOn.setVisibility(View.INVISIBLE);
                 }
@@ -332,6 +296,7 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
 
     int timerHours = 0, timerMinutes = 0, timerSeconds = 0;
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void getTime(int hours, int minutes, int seconds) {
 
@@ -339,15 +304,12 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
         timerMinutes = minutes;
         timerSeconds = seconds;
 
-        if (!(hours == 0 && minutes == 0 && seconds == 0))
-        {
+        if (!(hours == 0 && minutes == 0 && seconds == 0)) {
             pickTimeButton.setText(hours + "ч " + minutes + "м " + seconds + "с");
             pickTimeButton.setBackground(getResources().getDrawable(R.drawable.piked_time_button));
             pickTimeButton.setTextColor(getResources().getColor(R.color.blue));
             createCounterButton.setBackground(getResources().getDrawable(R.drawable.pick_time_button));
-        }
-        else
-        {
+        } else {
             pickTimeButton.setText("Выбрать время");
             pickTimeButton.setBackground(getResources().getDrawable(R.drawable.pick_time_button));
             pickTimeButton.setTextColor(getResources().getColor(R.color.white));

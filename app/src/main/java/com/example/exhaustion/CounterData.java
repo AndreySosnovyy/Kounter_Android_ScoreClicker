@@ -15,10 +15,9 @@ public class CounterData {
     public int timerSeconds;
     public int currentValue; // обновлять каждый клик
     public ArrayList<CounterClick> clickTimeArray = new ArrayList<>(); // добавлять объект в списочный массив на каждый клик
-    public int currentTime; // периодически (?) обновлять (время от начала счетчика)
+    public long currentTime; // периодически обновляется (300 мс) (время от начала счетчика)
 
-    public CounterData(String name, int startValue, int finishValue, int stepValue, boolean isTimer, int timerHours, int timerMinutes, int timerSeconds, boolean isStopwatch)
-    {
+    public CounterData(String name, int startValue, int finishValue, int stepValue, boolean isTimer, int timerHours, int timerMinutes, int timerSeconds, boolean isStopwatch) {
         this.name = name;
         this.startValue = startValue;
         this.finishValue = finishValue;
@@ -30,10 +29,11 @@ public class CounterData {
         this.isStopwatch = isStopwatch;
     }
 
-    public void setCurrentValue(int currentValue) { this.currentValue = currentValue; }
+    public void setCurrentValue(int currentValue) {
+        this.currentValue = currentValue;
+    }
 
-    public void setCurrentTime(int currentTime)
-    {
+    public void setCurrentTime(long currentTime) {
         this.currentTime = currentTime;
     }
 }
