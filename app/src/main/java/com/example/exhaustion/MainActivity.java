@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -39,18 +40,21 @@ import nl.dionsegijn.konfetti.models.Size;
 public class MainActivity extends AppCompatActivity {
 
     static boolean active = true;
+    static String globalName;
+    // тред для обновления времени в CounterData и обновления его в базе данных
+    Thread backgroundThread = new Thread(new BackgroundThread());
 
     @Override
     public void onStart() {
         super.onStart();
-        // создание треда для обновления времени в CounterData и обновления его в базе данных
-        new Thread(new BackgroundThread()).start();
+        backgroundThread.start();
     }
 
     @Override
     public void onStop() {
         super.onStop();
         active = false;
+        backgroundThread.interrupt();
     }
 
     @Override
@@ -60,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     DataBaseHelper dataBaseHelper;
-    private static final String TAG = "myLogs";
+    private static final String TAG = "DEBUG LOGS";
     private static MediaPlayer finishSound, timerSound;
     boolean flagTimerStarted = false, flagStopwatchStarted = false, flagBaseTimeSet = false;
     CounterData currentCounter;
@@ -140,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
         // значения, переданные из прошлого активити
         final boolean isTimer, isStopwatch;
         final String name = getIntent().getStringExtra("NAME");
+        globalName = name;
         final String sStartValue = getIntent().getStringExtra("START_VALUE");
         final int startValue = Integer.parseInt(sStartValue);
         final String sFinishValue = getIntent().getStringExtra("FINISH_VALUE");
@@ -159,16 +164,33 @@ public class MainActivity extends AppCompatActivity {
         final String sTimerSeconds = getIntent().getStringExtra("TIMER_VALUE_SECONDS");
         final int timerSeconds = Integer.parseInt(sTimerSeconds);
 
+        dataBaseHelper = new DataBaseHelper(this);
+        final SQLiteDatabase database = dataBaseHelper.getWritableDatabase();
+
+        final ContentValues contentValues = new ContentValues();
+        contentValues.put(DataBaseHelper.NAME, name);
+        contentValues.put(DataBaseHelper.NUMBER, 1);
+        contentValues.put(DataBaseHelper.START_VALUE, startValue);
+        contentValues.put(DataBaseHelper.FINISH_VALUE, finishValue);
+        contentValues.put(DataBaseHelper.STEP_VALUE, stepValue);
+        contentValues.put(DataBaseHelper.IS_TIMER, isTimer);
+        contentValues.put(DataBaseHelper.IS_STOPWATCH, isStopwatch);
+        contentValues.put(DataBaseHelper.TIMER_HOURS, timerHours);
+        contentValues.put(DataBaseHelper.TIMER_MINUTES, timerMinutes);
+        contentValues.put(DataBaseHelper.TIMER_SECONDS, timerSeconds);
+        contentValues.put(DataBaseHelper.CURRENT_VALUE_ONE, startValue);
+        contentValues.put(DataBaseHelper.CURRENT_TIME, 0);
+        database.insert(DataBaseHelper.COUNTER_TABLE, null, contentValues);
+        contentValues.clear();
+
         // если нет таймера и секундомера, то пропускать условие в обработчике длинного клика перед началом таймера/секундомера
         if (!isStopwatch && !isTimer) {
             flagStopwatchStarted = true;
             flagTimerStarted = true;
         }
 
-        dataBaseHelper = new DataBaseHelper(this);
-
         // создание объекта для текущего счетчика
-        currentCounter = new CounterData(name, startValue, finishValue, stepValue, isTimer, timerHours, timerMinutes, timerSeconds, isStopwatch);
+        currentCounter = new CounterData(name, 1, startValue, finishValue, stepValue, isTimer, timerHours, timerMinutes, timerSeconds, isStopwatch);
 
         // замена actionBar на toolbar
         toolbar = findViewById(R.id.toolbar);
@@ -279,44 +301,75 @@ public class MainActivity extends AppCompatActivity {
                     int inc = Integer.parseInt(counterButton.getText().toString()) + stepValue;
                     counterButton.setText(String.valueOf(inc));
 
-                    String[] temp = GetDateAndTime();
-                    currentCounter.clickTimeArray.add(new CounterClick(true, SystemClock.elapsedRealtime() - timeScreenHead.getBase(), temp[0], temp[1]));
-                    currentCounter.setCurrentValue(inc);
-
+                    // изменение размера шрифта
                     if (inc > 9999 && inc < 100000) counterButton.setTextSize(144);
                     else if (inc > 99999) counterButton.setTextSize(114);
 
+                    // добавлнеие клика в объект счетчика
+                    String[] temp = GetDateAndTime();
+                    currentCounter.clickTimeArray.add(new CounterClick(true, SystemClock.elapsedRealtime() - timeScreenHead.getBase(), temp[0], temp[1]));
+
+                    // обновление текущего значения в объкте счетчика
+                    currentCounter.setCurrentValueOne(inc);
+
+                    // обновление текущего значения в базе данных
+                    contentValues.put(DataBaseHelper.CURRENT_VALUE_ONE, inc);
+                    int updCount = database.update(DataBaseHelper.COUNTER_TABLE, contentValues,
+                            DataBaseHelper.NAME + " = ?", new String[]{name});
+                    contentValues.clear();
+                    if (updCount != 1) {
+                        Log.d(TAG, "ERROR : UNABLE TO UPDATE CURRENT VALUE");
+                    }
+
                     // добавлнеие клика в базу данных
                     SQLiteDatabase database = dataBaseHelper.getWritableDatabase();
-                    ContentValues contentValues = new ContentValues();
                     contentValues.put(DataBaseHelper.NAME, name);
+                    contentValues.put(DataBaseHelper.NUMBER, 1);
                     contentValues.put(DataBaseHelper.TYPE, true);
                     contentValues.put(DataBaseHelper.TIME, currentCounter.clickTimeArray.get(currentCounter.clickTimeArray.size() - 1).time);
                     contentValues.put(DataBaseHelper.STAMP_DATE, currentCounter.clickTimeArray.get(currentCounter.clickTimeArray.size() - 1).stampDate);
                     contentValues.put(DataBaseHelper.STAMP_TIME, currentCounter.clickTimeArray.get(currentCounter.clickTimeArray.size() - 1).stampTime);
                     database.insert(DataBaseHelper.COUNTER_CLICK_TABLE, null, contentValues);
+                    contentValues.clear();
 
 
-//                    Cursor cursor = database.query(DataBaseHelper.COUNTER_CLICK_TABLE, null, null, null, null, null, null);
-//                    if (cursor.moveToFirst()) {
-//                        int idIndex = cursor.getColumnIndex(DataBaseHelper.KEY_ID);
-//                        int nameIndex = cursor.getColumnIndex(DataBaseHelper.NAME);
-//                        int timeIndex = cursor.getColumnIndex(DataBaseHelper.TIME);
-//                        int stampDateIndex = cursor.getColumnIndex(DataBaseHelper.STAMP_DATE);
-//                        int stampTimeIndex = cursor.getColumnIndex(DataBaseHelper.STAMP_TIME);
-//
-//                        do {
-//                            Log.d(TAG, "ID = " + cursor.getInt(idIndex) +
-//                                    ", name = " + cursor.getString(nameIndex) +
-//                                    ", time = " + cursor.getString(timeIndex) +
-//                                    ", stampDate = " + cursor.getString(stampDateIndex) +
-//                                    ", stampTime = " + cursor.getString(stampTimeIndex));
-//                        } while (cursor.moveToNext());
-//                    } else
-//                        Log.d("mLog","0 rows");
-//                    cursor.close();
+                    Cursor cursor = database.query(DataBaseHelper.COUNTER_TABLE, null, null, null, null, null, null);
+                    if (cursor.moveToFirst()) {
+                        int idIndex = cursor.getColumnIndex(DataBaseHelper.KEY_ID);
+                        int nameIndex = cursor.getColumnIndex(DataBaseHelper.NAME);
+                        int numberIndex = cursor.getColumnIndex(DataBaseHelper.NUMBER);
+                        int startIndex = cursor.getColumnIndex(DataBaseHelper.START_VALUE);
+                        int finishIndex = cursor.getColumnIndex(DataBaseHelper.FINISH_VALUE);
+                        int stepIndex = cursor.getColumnIndex(DataBaseHelper.STEP_VALUE);
+                        int timerIndex = cursor.getColumnIndex(DataBaseHelper.IS_TIMER);
+                        int stopwatchIndex = cursor.getColumnIndex(DataBaseHelper.IS_STOPWATCH);
+                        int hoursIndex = cursor.getColumnIndex(DataBaseHelper.TIMER_HOURS);
+                        int minutesIndex = cursor.getColumnIndex(DataBaseHelper.TIMER_MINUTES);
+                        int secondsIndex = cursor.getColumnIndex(DataBaseHelper.TIMER_SECONDS);
+                        int currentValueIndex = cursor.getColumnIndex(DataBaseHelper.CURRENT_VALUE_ONE);
+                        int currentTimeIndex = cursor.getColumnIndex(DataBaseHelper.CURRENT_TIME);
+
+                        do {
+                            Log.d(TAG, "ID = " + cursor.getInt(idIndex) +
+                                    ", name = " + cursor.getString(nameIndex) +
+                                    ", number = " + cursor.getInt(numberIndex) +
+                                    ", start = " + cursor.getInt(startIndex) +
+                                    ", finish = " + cursor.getInt(finishIndex) +
+                                    ", step = " + cursor.getInt(stepIndex) +
+                                    ", timer = " + cursor.getInt(timerIndex) +
+                                    ", stopwatch = " + cursor.getInt(stopwatchIndex) +
+                                    ", hours = " + cursor.getInt(hoursIndex) +
+                                    ", minutes = " + cursor.getInt(minutesIndex) +
+                                    ", seconds = " + cursor.getInt(secondsIndex) +
+                                    ", value = " + cursor.getInt(currentValueIndex) +
+                                    ", time = " + cursor.getInt(currentTimeIndex));
+                        } while (cursor.moveToNext());
+                    } else
+                        Log.d("mLog","0 rows");
+                    cursor.close();
 
 
+                    // проверка на финиш
                     if (Integer.parseInt(counterButton.getText().toString()) >= finishValue) {
                         active = false; // для остановки обновлений
                         counterButton.setEnabled(false);
@@ -402,19 +455,31 @@ public class MainActivity extends AppCompatActivity {
                     if (dec <= 9999) counterButton.setTextSize(174);
                     else if (dec <= 99999) counterButton.setTextSize(144);
 
+                    // добавление клика в объект счетчика
                     String[] temp = GetDateAndTime();
                     currentCounter.clickTimeArray.add(new CounterClick(false, SystemClock.elapsedRealtime() - timeScreenHead.getBase(), temp[0], temp[1]));
-                    currentCounter.setCurrentValue(dec);
+
+                    // обновлние текущего значения в объекте счетчика
+                    currentCounter.setCurrentValueOne(dec);
+
+                    // обновление текущего значения в базе данных
+                    contentValues.put(DataBaseHelper.CURRENT_VALUE_ONE, dec);
+                    int updCount = database.update(DataBaseHelper.COUNTER_TABLE, contentValues,
+                            DataBaseHelper.NAME + " = ?", new String[]{name});
+                    contentValues.clear();
+                    if (updCount != 1) {
+                        Log.d(TAG, "ERROR : UNABLE TO UPDATE CURRENT VALUE");
+                    }
 
                     // добавлние клика в базу данных
-                    SQLiteDatabase database = dataBaseHelper.getWritableDatabase();
-                    ContentValues contentValues = new ContentValues();
                     contentValues.put(DataBaseHelper.NAME, name);
+                    contentValues.put(DataBaseHelper.NUMBER, 1);
                     contentValues.put(DataBaseHelper.TYPE, false);
                     contentValues.put(DataBaseHelper.TIME, currentCounter.clickTimeArray.get(currentCounter.clickTimeArray.size() - 1).time);
                     contentValues.put(DataBaseHelper.STAMP_DATE, currentCounter.clickTimeArray.get(currentCounter.clickTimeArray.size() - 1).stampDate);
                     contentValues.put(DataBaseHelper.STAMP_TIME, currentCounter.clickTimeArray.get(currentCounter.clickTimeArray.size() - 1).stampTime);
                     database.insert(DataBaseHelper.COUNTER_CLICK_TABLE, null, contentValues);
+                    contentValues.clear();
                 }
                 return true;
             }
@@ -444,17 +509,53 @@ public class MainActivity extends AppCompatActivity {
     class BackgroundThread implements Runnable {
         @Override
         public void run() {
+
+            SQLiteDatabase database = dataBaseHelper.getWritableDatabase();
+            ContentValues contentValues = new ContentValues();
+
             while (active) {
-                currentCounter.setCurrentTime(SystemClock.elapsedRealtime() - timeScreenHead.getBase());
-                //Log.d(TAG, "---------- UPDATED ----------");
+                Log.d(TAG, "BACKGROUND THREAD RUN");
+                long currentTime = SystemClock.elapsedRealtime() - timeScreenHead.getBase();
+                currentCounter.setCurrentTime(currentTime); // обновлнение текущего времени в объекте счетчика
 
-                // TODO - обновление currentTime в базе данных
+                // обновелние текущего времени счетчика в базе данных
+                contentValues.put(DataBaseHelper.CURRENT_TIME, SystemClock.elapsedRealtime() - timeScreenHead.getBase());
+                int updCount = database.update(DataBaseHelper.COUNTER_TABLE, contentValues,
+                        DataBaseHelper.NAME + " = ?", new String[]{globalName});
+                contentValues.clear();
+                if (updCount != 1) {
+                    Log.d(TAG, "ERROR : UNABLE TO UPDATE CURRENT TIME");
+                }
 
+                // задержка
                 try {
-                    Thread.sleep(300);
+                    Thread.sleep(330);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+
+//                Cursor cursor = database.query(DataBaseHelper.COUNTER_CLICK_TABLE, null, null, null, null, null, null);
+//                if (cursor.moveToFirst()) {
+//                    int idIndex = cursor.getColumnIndex(DataBaseHelper.KEY_ID);
+//                    int nameIndex = cursor.getColumnIndex(DataBaseHelper.NAME);
+//                    int numberIndex = cursor.getColumnIndex(DataBaseHelper.NUMBER);
+//                    int typeIndex = cursor.getColumnIndex(DataBaseHelper.TYPE);
+//                    int timeIndex = cursor.getColumnIndex(DataBaseHelper.TIME);
+//                    int stampDateIndex = cursor.getColumnIndex(DataBaseHelper.STAMP_DATE);
+//                    int stampTimeIndex = cursor.getColumnIndex(DataBaseHelper.STAMP_TIME);
+//
+//                    do {
+//                        Log.d(TAG, "ID = " + cursor.getInt(idIndex) +
+//                                ", name = " + cursor.getString(nameIndex) +
+//                                ", number = " + cursor.getInt(numberIndex) +
+//                                ", type = " + cursor.getInt(typeIndex) +
+//                                ", time = " + cursor.getInt(timeIndex) +
+//                                ", stampDate = " + cursor.getString(stampDateIndex) +
+//                                ", stampTime = " + cursor.getString(stampTimeIndex));
+//                    } while (cursor.moveToNext());
+//                } else
+//                    Log.d("mLog","0 rows");
+//                cursor.close();
             }
         }
     }

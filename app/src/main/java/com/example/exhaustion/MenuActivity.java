@@ -5,10 +5,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,7 +33,7 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
     Switch timerSwitch, stopwatchSwitch;
     EditText finishValueField, stepValueField, nameField, startValueField;
     TextView radioButton1textView, radioButton2textView, radioButton3textView, radioButton4textView;
-    Button pickTimeButton, createCounterButton;
+    Button pickTimeButton, createCounterButton, clearDatabaseButton;
     Toolbar toolbar;
     View timerLineOff, timerLineOn, stopwatchLineOff, stopwatchLineOn;
     CompoundButton previousRB;
@@ -77,6 +79,7 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
         timerLineOn = findViewById(R.id.timer_view_line_on);
         stopwatchLineOff = findViewById(R.id.stopwatch_view_line_off);
         stopwatchLineOn = findViewById(R.id.stopwatch_view_line_on);
+        clearDatabaseButton = findViewById(R.id.clearDB);
 
         startValueField.setFilters(new InputFilter[]{new InputFilter.LengthFilter(5)});
         finishValueField.setFilters(new InputFilter[]{new InputFilter.LengthFilter(5)});
@@ -110,19 +113,40 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
             }
         });
 
+        clearDatabaseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SQLiteDatabase database = new DataBaseHelper(getApplicationContext()).getWritableDatabase();
+                try {
+                    database.delete(DataBaseHelper.COUNTER_TABLE, null, null);
+                    database.delete(DataBaseHelper.COUNTER_CLICK_TABLE, null, null);
+//                    database.execSQL("drop table if exists " + DataBaseHelper.COUNTER_CLICK_TABLE);
+//                    database.execSQL("drop table if exists " + DataBaseHelper.COUNTER_TABLE);
+                    Log.d("myLog", "The database has been cleared");
+                } catch (Exception e) {
+                    Log.d("myLog", e.toString());
+                }
+
+            }
+        });
+
         createCounterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                // TODO - сделать проверку на повторение имен в базе данных
+
                 if (nameField.getText().toString().equals("")) {
                     Toast.makeText(getApplicationContext(), "Введите название счётчика", Toast.LENGTH_SHORT).show();
                 } else if (timerSwitch.isChecked() && timerHours == 0 && timerMinutes == 0 && timerSeconds == 0) {
                     Toast.makeText(getApplicationContext(), "Выберите время для таймера", Toast.LENGTH_SHORT).show();
                 } else if (stepValueField.getText().toString().equals("0")) {
                     Toast.makeText(MenuActivity.this, "Шаг не может быть равен 0", Toast.LENGTH_SHORT).show();
-                } else if (!startValueField.getText().toString().equals("") && !finishValueField.getText().toString().equals("")) {
-                    if (Integer.parseInt(startValueField.getText().toString()) >= Integer.parseInt(finishValueField.getText().toString())) {
-                        Toast.makeText(MenuActivity.this, "Старт должен быть меньше финиша", Toast.LENGTH_SHORT).show();
-                    }
+                } else if (finishValueField.getText().toString().equals("0")) {
+                    Toast.makeText(MenuActivity.this, "Финиш не может быть равен 0", Toast.LENGTH_SHORT).show();
+                } else if (!startValueField.getText().toString().equals("") && !finishValueField.getText().toString().equals("") &&
+                        Integer.parseInt(startValueField.getText().toString()) >= Integer.parseInt(finishValueField.getText().toString())) {
+                    Toast.makeText(MenuActivity.this, "Старт должен быть меньше финиша", Toast.LENGTH_SHORT).show();
                 } else {
                     Intent intent = new Intent();
 

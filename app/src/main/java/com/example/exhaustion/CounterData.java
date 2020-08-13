@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class CounterData {
 
     public String name;
+    public int number;
     public int startValue;
     public int finishValue;
     public int stepValue;
@@ -13,11 +14,14 @@ public class CounterData {
     public int timerHours;
     public int timerMinutes;
     public int timerSeconds;
-    public int currentValue; // обновлять каждый клик
+    public int currentValueOne;
+    public int currentValueTwo;
+    public int currentValueThree;
+    public int currentValueFour;
     public ArrayList<CounterClick> clickTimeArray = new ArrayList<>(); // добавлять объект в списочный массив на каждый клик
     public long currentTime; // периодически обновляется (300 мс) (время от начала счетчика)
 
-    public CounterData(String name, int startValue, int finishValue, int stepValue, boolean isTimer, int timerHours, int timerMinutes, int timerSeconds, boolean isStopwatch) {
+    public CounterData(String name, int number, int startValue, int finishValue, int stepValue, boolean isTimer, int timerHours, int timerMinutes, int timerSeconds, boolean isStopwatch) {
         this.name = name;
         this.startValue = startValue;
         this.finishValue = finishValue;
@@ -29,8 +33,20 @@ public class CounterData {
         this.isStopwatch = isStopwatch;
     }
 
-    public void setCurrentValue(int currentValue) {
-        this.currentValue = currentValue;
+    public void setCurrentValueOne(int currentValueOne) {
+        this.currentValueOne = currentValueOne;
+    }
+
+    public void setCurrentValueTwo(int currentValueTwo) {
+        this.currentValueTwo = currentValueTwo;
+    }
+
+    public void setCurrentValueThree(int currentValueThree) {
+        this.currentValueThree = currentValueThree;
+    }
+
+    public void setCurrentValueFour(int currentValueFour) {
+        this.currentValueFour = currentValueFour;
     }
 
     public void setCurrentTime(long currentTime) {
