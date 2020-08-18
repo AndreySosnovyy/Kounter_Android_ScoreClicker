@@ -1,5 +1,7 @@
 package com.example.exhaustion;
 
+import android.database.sqlite.SQLiteDatabase;
+
 import java.util.ArrayList;
 
 public class CounterData {
@@ -23,6 +25,7 @@ public class CounterData {
 
     public CounterData(String name, int number, int startValue, int finishValue, int stepValue, boolean isTimer, int timerHours, int timerMinutes, int timerSeconds, boolean isStopwatch) {
         this.name = name;
+        this.number = number;
         this.startValue = startValue;
         this.finishValue = finishValue;
         this.stepValue = stepValue;

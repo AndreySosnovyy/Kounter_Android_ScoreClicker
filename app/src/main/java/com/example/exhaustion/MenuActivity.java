@@ -5,8 +5,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
@@ -38,6 +41,9 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
     View timerLineOff, timerLineOn, stopwatchLineOff, stopwatchLineOn;
     CompoundButton previousRB;
     Animation scaleAnimation, reverseScaleAnimation, pickTimeButtonAnimation, pickTimeButtonAnimationReverse;
+    DataBaseHelper dataBaseHelper;
+
+    private static final String TAG = "DEBUG LOGS";
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -81,6 +87,7 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
         stopwatchLineOn = findViewById(R.id.stopwatch_view_line_on);
         clearDatabaseButton = findViewById(R.id.clearDB);
 
+        nameField.setFilters(new InputFilter[]{new InputFilter.LengthFilter(24)});
         startValueField.setFilters(new InputFilter[]{new InputFilter.LengthFilter(5)});
         finishValueField.setFilters(new InputFilter[]{new InputFilter.LengthFilter(5)});
         stepValueField.setFilters(new InputFilter[]{new InputFilter.LengthFilter(3)});
@@ -90,6 +97,8 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
         reverseScaleAnimation = AnimationUtils.loadAnimation(this, R.anim.scale_reverse);
         pickTimeButtonAnimation = AnimationUtils.loadAnimation(this, R.anim.pick_time_button_anim);
         pickTimeButtonAnimationReverse = AnimationUtils.loadAnimation(this, R.anim.pick_time_button_anim_reverse);
+
+        dataBaseHelper = new DataBaseHelper(this);
 
         toolbar.setTitle("      Kounter");
         setSupportActionBar(toolbar);
@@ -122,9 +131,9 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
                     database.delete(DataBaseHelper.COUNTER_CLICK_TABLE, null, null);
 //                    database.execSQL("drop table if exists " + DataBaseHelper.COUNTER_CLICK_TABLE);
 //                    database.execSQL("drop table if exists " + DataBaseHelper.COUNTER_TABLE);
-                    Log.d("myLog", "The database has been cleared");
-                } catch (Exception e) {
-                    Log.d("myLog", e.toString());
+                    Log.d(TAG, "THE DATABASE HAS BEEN CLEARED");
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
 
             }
@@ -134,10 +143,16 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
             @Override
             public void onClick(View v) {
 
-                // TODO - сделать проверку на повторение имен в базе данных
+                nameField.setText(nameField.getText().toString().trim()); // убирание пробелов в начале и конце
+
+                SQLiteDatabase database = dataBaseHelper.getWritableDatabase();
+                Cursor cursor = database.query(DataBaseHelper.COUNTER_TABLE, new String[]{DataBaseHelper.KEY_ID},
+                        DataBaseHelper.NAME + " = ?", new String[]{nameField.getText().toString()}, null, null, null);
 
                 if (nameField.getText().toString().equals("")) {
                     Toast.makeText(getApplicationContext(), "Введите название счётчика", Toast.LENGTH_SHORT).show();
+                } else if (cursor.moveToFirst()) {
+                    Toast.makeText(MenuActivity.this, "Счётчик с таким именем уже существует", Toast.LENGTH_SHORT).show();
                 } else if (timerSwitch.isChecked() && timerHours == 0 && timerMinutes == 0 && timerSeconds == 0) {
                     Toast.makeText(getApplicationContext(), "Выберите время для таймера", Toast.LENGTH_SHORT).show();
                 } else if (stepValueField.getText().toString().equals("0")) {
@@ -148,6 +163,7 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
                         Integer.parseInt(startValueField.getText().toString()) >= Integer.parseInt(finishValueField.getText().toString())) {
                     Toast.makeText(MenuActivity.this, "Старт должен быть меньше финиша", Toast.LENGTH_SHORT).show();
                 } else {
+                    nameField.clearFocus();
                     Intent intent = new Intent();
 
                     if (radioButton1.isChecked()) {
@@ -182,6 +198,15 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
                     intent.putExtra("TIMER_VALUE_SECONDS", "" + timerSeconds);
                     startActivity(intent);
                 }
+                cursor.close();
+
+                createCounterButton.setClickable(false);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        createCounterButton.setClickable(true);
+                    }
+                }, 100);
             }
         });
 

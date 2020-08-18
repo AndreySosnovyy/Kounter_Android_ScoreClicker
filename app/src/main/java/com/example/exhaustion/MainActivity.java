@@ -9,8 +9,10 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.os.Vibrator;
 import android.util.Log;
@@ -21,6 +23,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.Chronometer;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -41,39 +44,64 @@ public class MainActivity extends AppCompatActivity {
 
     static boolean active = true;
     static String globalName;
-    // тред для обновления времени в CounterData и обновления его в базе данных
+    // поток для обновления времени в CounterData и обновления его в базе данных
     Thread backgroundThread = new Thread(new BackgroundThread());
 
     @Override
     public void onStart() {
         super.onStart();
-        backgroundThread.start();
+        Log.d(TAG, "-------------onStart-------------");
+        if (!backgroundThread.isAlive()) {
+            backgroundThread.start();
+            Log.d(TAG, "-------------backgroundThread started-------------");
+        } else {
+            Log.d(TAG, "-------------backgroundThread already exists-------------");
+        }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d(TAG, "-------------onRestart-------------");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "-------------onResume-------------");
+    }
+
+    @Override
+    protected void onPause() {
+        Log.d(TAG, "-------------onPause-------------");
+        super.onPause();
     }
 
     @Override
     public void onStop() {
+        Log.d(TAG, "-------------onStop-------------");
         super.onStop();
-        active = false;
-        backgroundThread.interrupt();
     }
 
     @Override
-    public void onRestart() {
-        super.onRestart();
-        active = true;
+    public void onDestroy() {
+        Log.d(TAG, "-------------onDestroy-------------");
+        super.onDestroy();
     }
 
     DataBaseHelper dataBaseHelper;
     private static final String TAG = "DEBUG LOGS";
     private static MediaPlayer finishSound, timerSound;
-    boolean flagTimerStarted = false, flagStopwatchStarted = false, flagBaseTimeSet = false;
+    boolean flagTimerStarted = false, flagStopwatchStarted = false;
     CounterData currentCounter;
     Button counterButton;
     Toolbar toolbar;
-    Chronometer timeScreenHead;
+    TextView timeScreenHead;
+    Chronometer chronometer;
     TextView startTimerTextView, timerPicture, finishTextView, stopwatchTimeAfterFinishTextView;
     Animation upAnimation, fadeInAnimation, fadeOutAnimation;
     CountDownTimer countDownTimer;
+    long timeAtStart;
 
     // вешаем меню в toolbar
     @Override
@@ -94,11 +122,20 @@ public class MainActivity extends AppCompatActivity {
                 builder.setTitle("Вы уверены, что хотите перезапустить счетчик?");
                 builder.setPositiveButton("Да", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        Intent intent = getIntent();
+                        // удаление счетчика из базы данных, чтобы не было конфликта имен после создании копии
+                        SQLiteDatabase database = dataBaseHelper.getWritableDatabase();
+                        int delCount = database.delete(DataBaseHelper.COUNTER_TABLE, DataBaseHelper.NAME + " = ?", new String[]{globalName});
+                        if (delCount != 1) {
+                            Log.d(TAG, "UNABLE TO DELETE CURRENT COUNTER FROM DATABASE AFTER FINISH() OR DELETED MORE THEN 1");
+                        }
+                        if (countDownTimer != null) countDownTimer.cancel(); // отмена таймера, потому что он работает независимо от MainActivity
+
+                        backgroundThread.interrupt();
+
+                        //recreate(); // вылетает черный экран
                         finish();
-                        startActivity(intent);
-                        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-                        if (countDownTimer != null) countDownTimer.cancel();
+                        startActivity(getIntent());
+                        overridePendingTransition(R.anim.fade_in_600, R.anim.fade_out_600);
                     }
                 });
                 builder.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
@@ -140,6 +177,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // по идее, значит, что поток 100% завершится после завершения основного потока
+        backgroundThread.setDaemon(true);
 
         // значения, переданные из прошлого активити
         final boolean isTimer, isStopwatch;
@@ -210,6 +250,7 @@ public class MainActivity extends AppCompatActivity {
 
         counterButton = findViewById(R.id.counterButton);
         timeScreenHead = findViewById(R.id.timeScreenHead);
+        chronometer = findViewById(R.id.chronometer);
         upAnimation = AnimationUtils.loadAnimation(this, R.anim.up_moving);
         fadeInAnimation = AnimationUtils.loadAnimation(this, R.anim.fade_in);
         fadeOutAnimation = AnimationUtils.loadAnimation(this, R.anim.fade_out);
@@ -227,16 +268,12 @@ public class MainActivity extends AppCompatActivity {
         counterButton.setText(startValue + "");
         if (startValue > 9999 && startValue < 100000) counterButton.setTextSize(144);
 
+        timeAtStart = SystemClock.elapsedRealtime();
+
         // обработка обычного клика счетчика
         counterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                // установка начального времени для запоминания времени каждого клика (и секундомера)
-                if (!flagBaseTimeSet) {
-                    timeScreenHead.setBase(SystemClock.elapsedRealtime());
-                    flagBaseTimeSet = true;
-                }
 
                 // действия, если есть таймер и он еще не начался
                 if (isTimer && !flagTimerStarted) {
@@ -293,8 +330,7 @@ public class MainActivity extends AppCompatActivity {
                 else if (isStopwatch && !flagStopwatchStarted) {
                     flagStopwatchStarted = true;
                     startTimerTextView.setVisibility(View.INVISIBLE);
-                    //timeScreenHead.setBase(SystemClock.elapsedRealtime());
-                    timeScreenHead.start();
+                    chronometer.start();
                 }
                 // инкремент счетчика + добавлнеие клика в базу данных + проверка на финиш
                 else {
@@ -302,12 +338,14 @@ public class MainActivity extends AppCompatActivity {
                     counterButton.setText(String.valueOf(inc));
 
                     // изменение размера шрифта
-                    if (inc > 9999 && inc < 100000) counterButton.setTextSize(144);
+                    if (inc > -9999 && inc < 9999) counterButton.setTextSize(174);
+                    else if (inc > 9999 && inc < 100000) counterButton.setTextSize(144);
                     else if (inc > 99999) counterButton.setTextSize(114);
+
 
                     // добавлнеие клика в объект счетчика
                     String[] temp = GetDateAndTime();
-                    currentCounter.clickTimeArray.add(new CounterClick(true, SystemClock.elapsedRealtime() - timeScreenHead.getBase(), temp[0], temp[1]));
+                    currentCounter.clickTimeArray.add(new CounterClick(true, SystemClock.elapsedRealtime() - timeAtStart, temp[0], temp[1]));
 
                     // обновление текущего значения в объкте счетчика
                     currentCounter.setCurrentValueOne(inc);
@@ -331,7 +369,6 @@ public class MainActivity extends AppCompatActivity {
                     contentValues.put(DataBaseHelper.STAMP_TIME, currentCounter.clickTimeArray.get(currentCounter.clickTimeArray.size() - 1).stampTime);
                     database.insert(DataBaseHelper.COUNTER_CLICK_TABLE, null, contentValues);
                     contentValues.clear();
-
 
                     Cursor cursor = database.query(DataBaseHelper.COUNTER_TABLE, null, null, null, null, null, null);
                     if (cursor.moveToFirst()) {
@@ -365,9 +402,8 @@ public class MainActivity extends AppCompatActivity {
                                     ", time = " + cursor.getInt(currentTimeIndex));
                         } while (cursor.moveToNext());
                     } else
-                        Log.d("mLog","0 rows");
+                        Log.d("mLog", "0 rows");
                     cursor.close();
-
 
                     // проверка на финиш
                     if (Integer.parseInt(counterButton.getText().toString()) >= finishValue) {
@@ -379,6 +415,7 @@ public class MainActivity extends AppCompatActivity {
                             timeScreenHead.startAnimation(upAnimation);
                             timeScreenHead.setVisibility(View.INVISIBLE);
                         }
+                        chronometer.stop();
 
                         // TODO - условие из настроек
 
@@ -409,12 +446,11 @@ public class MainActivity extends AppCompatActivity {
 
                         finishTextView.startAnimation(fadeOutAnimation);
                         finishTextView.setVisibility(View.INVISIBLE);
-                        timeScreenHead.stop();
 
                         // вывод времени секундомера в отдельный view, после достижения финиша
                         if (isStopwatch) {
                             // время секундомера в миллисекундах + перевод в секунды
-                            long timeToShow = SystemClock.elapsedRealtime() - timeScreenHead.getBase();
+                            long timeToShow = SystemClock.elapsedRealtime() - timeAtStart;
                             int hoursToShow = (int) TimeUnit.MILLISECONDS.toHours(timeToShow);
                             int minutesToShow = (int) TimeUnit.MILLISECONDS.toMinutes(timeToShow) % 60;
                             int secondsToShow = (int) TimeUnit.MILLISECONDS.toSeconds(timeToShow) % 60;
@@ -433,12 +469,12 @@ public class MainActivity extends AppCompatActivity {
                             stopwatchTimeAfterFinishTextView.startAnimation(fadeInAnimation);
                         }
 
-                        // ======================================================
-                        for (int i = 0; i < currentCounter.clickTimeArray.size(); i++) {
-                            CounterClick cc = currentCounter.clickTimeArray.get(i);
-                            Log.d(TAG, cc.type + " " + cc.time + " " + cc.stampDate + " " + cc.stampTime);
-                        }
-                        // ======================================================
+//                        // ======================================================
+//                        for (int i = 0; i < currentCounter.clickTimeArray.size(); i++) {
+//                            CounterClick cc = currentCounter.clickTimeArray.get(i);
+//                            Log.d(TAG, cc.type + " " + cc.time + " " + cc.stampDate + " " + cc.stampTime);
+//                        }
+//                        // ======================================================
                     }
                 }
             }
@@ -452,12 +488,14 @@ public class MainActivity extends AppCompatActivity {
                     int dec = Integer.parseInt(counterButton.getText().toString()) - stepValue;
                     counterButton.setText(String.valueOf(dec));
 
-                    if (dec <= 9999) counterButton.setTextSize(174);
+                    if (dec < -9999) counterButton.setTextSize(144);
+                    else if (dec > -9999 && dec < 9999) counterButton.setTextSize(174);
+                    else if (dec <= 9999) counterButton.setTextSize(174);
                     else if (dec <= 99999) counterButton.setTextSize(144);
 
                     // добавление клика в объект счетчика
                     String[] temp = GetDateAndTime();
-                    currentCounter.clickTimeArray.add(new CounterClick(false, SystemClock.elapsedRealtime() - timeScreenHead.getBase(), temp[0], temp[1]));
+                    currentCounter.clickTimeArray.add(new CounterClick(false, SystemClock.elapsedRealtime() - timeAtStart, temp[0], temp[1]));
 
                     // обновлние текущего значения в объекте счетчика
                     currentCounter.setCurrentValueOne(dec);
@@ -499,7 +537,7 @@ public class MainActivity extends AppCompatActivity {
         }
         // инициализация, если есть секундомер
         else if (isStopwatch) {
-            timeScreenHead.setVisibility(View.VISIBLE);
+            chronometer.setVisibility(View.VISIBLE);
             startTimerTextView.setVisibility(View.VISIBLE);
             startTimerTextView.setText("Нажмите, чтобы начать секундомер");
         }
@@ -513,26 +551,27 @@ public class MainActivity extends AppCompatActivity {
             SQLiteDatabase database = dataBaseHelper.getWritableDatabase();
             ContentValues contentValues = new ContentValues();
 
-            while (active) {
-                Log.d(TAG, "BACKGROUND THREAD RUN");
-                long currentTime = SystemClock.elapsedRealtime() - timeScreenHead.getBase();
-                currentCounter.setCurrentTime(currentTime); // обновлнение текущего времени в объекте счетчика
+            while (Helper.isAppRunning(getApplicationContext(), "com.example.exhaustion")) {
+                if (active) {
+                    //Log.d(TAG, "BACKGROUND THREAD RUN: " + Thread.currentThread().toString());
+                    long currentTime = SystemClock.elapsedRealtime() - timeAtStart;
+                    currentCounter.setCurrentTime(currentTime); // обновлнение текущего времени в объекте счетчика
 
-                // обновелние текущего времени счетчика в базе данных
-                contentValues.put(DataBaseHelper.CURRENT_TIME, SystemClock.elapsedRealtime() - timeScreenHead.getBase());
-                int updCount = database.update(DataBaseHelper.COUNTER_TABLE, contentValues,
-                        DataBaseHelper.NAME + " = ?", new String[]{globalName});
-                contentValues.clear();
-                if (updCount != 1) {
-                    Log.d(TAG, "ERROR : UNABLE TO UPDATE CURRENT TIME");
-                }
+                    // обновелние текущего времени счетчика в базе данных
+                    contentValues.put(DataBaseHelper.CURRENT_TIME, SystemClock.elapsedRealtime() - timeAtStart);
+                    int updCount = database.update(DataBaseHelper.COUNTER_TABLE, contentValues,
+                            DataBaseHelper.NAME + " = ?", new String[]{globalName});
+                    contentValues.clear();
+                    if (updCount != 1) {
+                        Log.d(TAG, "ERROR : UNABLE TO UPDATE CURRENT TIME");
+                    }
 
-                // задержка
-                try {
-                    Thread.sleep(330);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                    // задержка + остановка цикла, если вызван interrupt()
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        break;
+                    }
 
 //                Cursor cursor = database.query(DataBaseHelper.COUNTER_CLICK_TABLE, null, null, null, null, null, null);
 //                if (cursor.moveToFirst()) {
@@ -556,6 +595,8 @@ public class MainActivity extends AppCompatActivity {
 //                } else
 //                    Log.d("mLog","0 rows");
 //                cursor.close();
+                }
+
             }
         }
     }
