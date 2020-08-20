@@ -1,5 +1,6 @@
 package com.example.exhaustion;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -38,6 +39,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public final static String CURRENT_VALUE_THREE = "currentValue3";
     public final static String CURRENT_VALUE_FOUR = "currentValue4";
     public final static String CURRENT_TIME = "currentTime";
+    public final static String TIME_OF_LAST_EDIT = "timeOfLastEdit";
 
     public DataBaseHelper(@Nullable Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -70,7 +72,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 CURRENT_VALUE_TWO + " INTEGER, " +    // текущее значение для поля два
                 CURRENT_VALUE_THREE + " INTEGER, " +    // текущее значение для поля три
                 CURRENT_VALUE_FOUR + " INTEGER, " +    // текущее значение для поля четыре
-                CURRENT_TIME + " INTEGER)");     // текущее время от начала счетчика (мс)
+                CURRENT_TIME + " INTEGER, " +      // текущее время от начала счетчика (мс)
+                TIME_OF_LAST_EDIT + " TEXT)");     // время последнего внесенного изменения
     }
 
     @Override
@@ -98,6 +101,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             int secondsIndex = cursor.getColumnIndex(DataBaseHelper.TIMER_SECONDS);
             int currentValueIndex = cursor.getColumnIndex(DataBaseHelper.CURRENT_VALUE_ONE);
             int currentTimeIndex = cursor.getColumnIndex(DataBaseHelper.CURRENT_TIME);
+            int timeEditedIndex = cursor.getColumnIndex(DataBaseHelper.TIME_OF_LAST_EDIT);
 
             do {
                 Log.d(TAG, "ID = " + cursor.getInt(idIndex) +
@@ -112,7 +116,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                         ", minutes = " + cursor.getInt(minutesIndex) +
                         ", seconds = " + cursor.getInt(secondsIndex) +
                         ", value = " + cursor.getInt(currentValueIndex) +
-                        ", time = " + cursor.getInt(currentTimeIndex));
+                        ", time = " + cursor.getInt(currentTimeIndex) +
+                        ", timeEdited = " + cursor.getString(timeEditedIndex));
             } while (cursor.moveToNext());
         } else
             Log.d("mLog", "0 rows");
@@ -161,6 +166,15 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         contentValues.put(DataBaseHelper.STAMP_TIME, timeStamp);
         database.insert(DataBaseHelper.COUNTER_CLICK_TABLE, null, contentValues);
         contentValues.clear();
+        // обновление времени последнего обновления в счетчике
+        contentValues.put(DataBaseHelper.TIME_OF_LAST_EDIT, dateStamp + " " + timeStamp);
+        int updCount = database.update(DataBaseHelper.COUNTER_TABLE, contentValues,
+                DataBaseHelper.NAME + " = ?", new String[]{name});
+        contentValues.clear();
+        if (updCount != 1) {
+            Log.d(TAG, "ERROR : UNABLE TO UPDATE TIME OF LAST EDIT");
+        }
+        contentValues.clear();
     }
 
     public static void setCurrentValue(SQLiteDatabase database, int value, String name) {
@@ -186,7 +200,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     public static void createNewCounter(SQLiteDatabase database, String name, int number, int startValue, int finishValue, int stepValue,
-                                        boolean isTimer, boolean isStopwatch, int timerHours, int timerMinutes, int timerSeconds) {
+                                        boolean isTimer, boolean isStopwatch, int timerHours, int timerMinutes, int timerSeconds, String timeOfLastEdit) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(DataBaseHelper.NAME, name);
         contentValues.put(DataBaseHelper.NUMBER, number);
@@ -200,6 +214,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         contentValues.put(DataBaseHelper.TIMER_SECONDS, timerSeconds);
         contentValues.put(DataBaseHelper.CURRENT_VALUE_ONE, startValue);
         contentValues.put(DataBaseHelper.CURRENT_TIME, 0);
+        contentValues.put(DataBaseHelper.TIME_OF_LAST_EDIT, timeOfLastEdit);
         database.insert(DataBaseHelper.COUNTER_TABLE, null, contentValues);
         contentValues.clear();
     }
@@ -209,5 +224,20 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         if (delCount != 1) {
             Log.d(TAG, "UNABLE TO DELETE CURRENT COUNTER FROM DATABASE AFTER FINISH() OR DELETED MORE THEN 1");
         }
+    }
+
+    public static int getNumberOfCounters(SQLiteDatabase database) {
+        String countQuery = "SELECT  * FROM " + COUNTER_TABLE;
+        Cursor cursor = database.rawQuery(countQuery, null);
+        int count = cursor.getCount();
+        cursor.close();
+        return count;
+    }
+
+    @SuppressLint("Recycle")
+    public static Cursor getAllCounters(SQLiteDatabase database) {
+        return database.query(DataBaseHelper.COUNTER_TABLE,
+                null, null, null, null, null, null);
+                //DataBaseHelper.TIME_OF_LAST_EDIT + " DESC");
     }
 }

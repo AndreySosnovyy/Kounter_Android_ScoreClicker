@@ -208,9 +208,12 @@ public class MainActivity extends AppCompatActivity {
             flagTimerStarted = true;
         }
 
+        String[] temp = GetDateAndTime();
+        String timeOfCreation = temp[0] + " " + temp[1];
+
         // добавлние нового счетчика в базу данных
         DataBaseHelper.createNewCounter(database, name, 1, startValue, finishValue, stepValue, isTimer, isStopwatch,
-                timerHours, timerMinutes, timerSeconds);
+                timerHours, timerMinutes, timerSeconds, timeOfCreation);
 
         // создание объекта для текущего счетчика
         currentCounter = new CounterData(name, 1, startValue, finishValue, stepValue, isTimer, timerHours, timerMinutes, timerSeconds, isStopwatch);
@@ -225,7 +228,6 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                View view = getLayoutInflater().inflate(R.layout.activity_menu, null);
                 if (countDownTimer != null) countDownTimer.cancel();
                 finish();
             }

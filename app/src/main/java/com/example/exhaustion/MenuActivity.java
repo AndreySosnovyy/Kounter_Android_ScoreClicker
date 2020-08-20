@@ -28,6 +28,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 
 public class MenuActivity extends AppCompatActivity implements CustomDialogFragment.CustomFragmentDialogListener {
@@ -42,6 +45,8 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
     CompoundButton previousRB;
     Animation scaleAnimation, reverseScaleAnimation, pickTimeButtonAnimation, pickTimeButtonAnimationReverse;
     DataBaseHelper dataBaseHelper;
+    RecyclerView recyclerView;
+    CounterViewAdapter counterViewAdapter = null;
 
     private static final String TAG = "DEBUG LOGS";
 
@@ -57,6 +62,14 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
             // новый лэйаут для настроек
         }
         return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (counterViewAdapter != null) {
+            counterViewAdapter.swapCursor(DataBaseHelper.getAllCounters(dataBaseHelper.getWritableDatabase()));
+        }
     }
 
     @Override
@@ -86,6 +99,33 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
         stopwatchLineOff = findViewById(R.id.stopwatch_view_line_off);
         stopwatchLineOn = findViewById(R.id.stopwatch_view_line_on);
         clearDatabaseButton = findViewById(R.id.clearDB);
+        recyclerView = findViewById(R.id.countersRecyclerView);
+
+        dataBaseHelper = new DataBaseHelper(this);
+
+        // работа с recyclerView
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(true);
+        counterViewAdapter = new CounterViewAdapter(this, DataBaseHelper.getAllCounters(dataBaseHelper.getWritableDatabase()));
+        //DataBaseHelper.printCounters(dataBaseHelper.getWritableDatabase());
+        recyclerView.setAdapter(counterViewAdapter);
+
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                SQLiteDatabase database = dataBaseHelper.getWritableDatabase();
+                database.delete(DataBaseHelper.COUNTER_TABLE,
+                        DataBaseHelper.KEY_ID + " = ?", new  String[]{String.valueOf(viewHolder.itemView.getTag())});
+                counterViewAdapter.swapCursor(DataBaseHelper.getAllCounters(database));
+            }
+        }).attachToRecyclerView(recyclerView);
+
+
 
         nameField.setFilters(new InputFilter[]{new InputFilter.LengthFilter(24)});
         startValueField.setFilters(new InputFilter[]{new InputFilter.LengthFilter(5)});
@@ -98,7 +138,7 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
         pickTimeButtonAnimation = AnimationUtils.loadAnimation(this, R.anim.pick_time_button_anim);
         pickTimeButtonAnimationReverse = AnimationUtils.loadAnimation(this, R.anim.pick_time_button_anim_reverse);
 
-        dataBaseHelper = new DataBaseHelper(this);
+
 
         toolbar.setTitle("      Kounter");
         setSupportActionBar(toolbar);
@@ -197,6 +237,12 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
                     intent.putExtra("TIMER_VALUE_MINUTES", "" + timerMinutes);
                     intent.putExtra("TIMER_VALUE_SECONDS", "" + timerSeconds);
                     startActivity(intent);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            nameField.setText("");
+                        }
+                    }, 1000);
                 }
                 cursor.close();
 
