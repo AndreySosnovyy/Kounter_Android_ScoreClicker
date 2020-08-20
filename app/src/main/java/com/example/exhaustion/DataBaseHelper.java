@@ -11,6 +11,10 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class DataBaseHelper extends SQLiteOpenHelper {
 
     public final static int DATABASE_VERSION = 1;
@@ -73,7 +77,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 CURRENT_VALUE_THREE + " INTEGER, " +    // текущее значение для поля три
                 CURRENT_VALUE_FOUR + " INTEGER, " +    // текущее значение для поля четыре
                 CURRENT_TIME + " INTEGER, " +      // текущее время от начала счетчика (мс)
-                TIME_OF_LAST_EDIT + " TEXT)");     // время последнего внесенного изменения
+                TIME_OF_LAST_EDIT + " DATETIME DEFAULT CURRENT_TIMESTAMP)");     // время последнего внесенного изменения
     }
 
     @Override
@@ -166,8 +170,10 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         contentValues.put(DataBaseHelper.STAMP_TIME, timeStamp);
         database.insert(DataBaseHelper.COUNTER_CLICK_TABLE, null, contentValues);
         contentValues.clear();
+
         // обновление времени последнего обновления в счетчике
-        contentValues.put(DataBaseHelper.TIME_OF_LAST_EDIT, dateStamp + " " + timeStamp);
+        //contentValues.put(DataBaseHelper.TIME_OF_LAST_EDIT, dateStamp + " " + timeStamp);
+        contentValues.put(DataBaseHelper.TIME_OF_LAST_EDIT, getSQLDateTime());
         int updCount = database.update(DataBaseHelper.COUNTER_TABLE, contentValues,
                 DataBaseHelper.NAME + " = ?", new String[]{name});
         contentValues.clear();
@@ -214,7 +220,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         contentValues.put(DataBaseHelper.TIMER_SECONDS, timerSeconds);
         contentValues.put(DataBaseHelper.CURRENT_VALUE_ONE, startValue);
         contentValues.put(DataBaseHelper.CURRENT_TIME, 0);
-        contentValues.put(DataBaseHelper.TIME_OF_LAST_EDIT, timeOfLastEdit);
+        contentValues.put(DataBaseHelper.TIME_OF_LAST_EDIT, getSQLDateTime());
         database.insert(DataBaseHelper.COUNTER_TABLE, null, contentValues);
         contentValues.clear();
     }
@@ -222,9 +228,80 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public static void deleteCounter(SQLiteDatabase database, String name) {
         int delCount = database.delete(DataBaseHelper.COUNTER_TABLE, DataBaseHelper.NAME + " = ?", new String[]{name});
         if (delCount != 1) {
-            Log.d(TAG, "UNABLE TO DELETE CURRENT COUNTER FROM DATABASE AFTER FINISH() OR DELETED MORE THEN 1");
+            Log.d(TAG, "UNABLE TO DELETE CURRENT COUNTER " + name + " FROM DATABASE OR DELETED MORE THEN 1");
+        }
+        int delCount2 = database.delete(DataBaseHelper.COUNTER_CLICK_TABLE, DataBaseHelper.NAME + " = ?", new String[]{name});
+        if (delCount == 0) {
+            //Log.d(TAG, "0 CLICK DELETED (COUNTER " + name + ")");
+        } else {
+            //Log.d(TAG, "DELETED " + delCount2 + " CLICKS FROM COUNTER " + name);
         }
     }
+
+    @SuppressLint("Recycle")
+    public static Cursor[] safeDeleteCounter(SQLiteDatabase database, String name) {
+        Cursor[] cursorArray = new Cursor[2];
+
+        cursorArray[0] = database.query(DataBaseHelper.COUNTER_TABLE, null, DataBaseHelper.NAME + " = ?", new String[]{name}, null, null, null);;
+        if (cursorArray[0].moveToFirst()) {
+            Log.d(TAG, "safeDeleteCounter: cursor filled with counter");
+        }
+
+        cursorArray[1] = database.query(DataBaseHelper.COUNTER_CLICK_TABLE, null, DataBaseHelper.NAME + " = ?", new String[]{name}, null, null, null);;
+        if (cursorArray[1].moveToFirst()) {
+            Log.d(TAG, "safeDeleteCounter: cursor filled with clicks");
+        }
+
+        deleteCounter(database, name);
+        return cursorArray;
+    }
+
+    public static void insertCursors(SQLiteDatabase database, Cursor[] cursors) {
+        ContentValues contentValues = new ContentValues();
+
+        Cursor cursorCounter = cursors[0];
+        Cursor cursorClicks = cursors[1];
+
+        if (cursorCounter.moveToFirst()) {
+            //contentValues.put(DataBaseHelper.KEY_ID, cursorCounter.getLong(cursorCounter.getColumnIndex(DataBaseHelper.KEY_ID)));
+            contentValues.put(DataBaseHelper.NAME, cursorCounter.getString(cursorCounter.getColumnIndex(DataBaseHelper.NAME)));
+            contentValues.put(DataBaseHelper.NUMBER, cursorCounter.getInt(cursorCounter.getColumnIndex(DataBaseHelper.NUMBER)));
+            contentValues.put(DataBaseHelper.START_VALUE, cursorCounter.getInt(cursorCounter.getColumnIndex(DataBaseHelper.START_VALUE)));
+            contentValues.put(DataBaseHelper.FINISH_VALUE, cursorCounter.getInt(cursorCounter.getColumnIndex(DataBaseHelper.FINISH_VALUE)));
+            contentValues.put(DataBaseHelper.STEP_VALUE, cursorCounter.getInt(cursorCounter.getColumnIndex(DataBaseHelper.STEP_VALUE)));
+            contentValues.put(DataBaseHelper.IS_TIMER, cursorCounter.getInt(cursorCounter.getColumnIndex(DataBaseHelper.IS_TIMER)));
+            contentValues.put(DataBaseHelper.IS_STOPWATCH, cursorCounter.getInt(cursorCounter.getColumnIndex(DataBaseHelper.IS_STOPWATCH)));
+            contentValues.put(DataBaseHelper.TIMER_HOURS, cursorCounter.getInt(cursorCounter.getColumnIndex(DataBaseHelper.TIMER_HOURS)));
+            contentValues.put(DataBaseHelper.TIMER_MINUTES, cursorCounter.getInt(cursorCounter.getColumnIndex(DataBaseHelper.TIMER_MINUTES)));
+            contentValues.put(DataBaseHelper.TIMER_SECONDS, cursorCounter.getInt(cursorCounter.getColumnIndex(DataBaseHelper.TIMER_SECONDS)));
+            contentValues.put(DataBaseHelper.CURRENT_VALUE_ONE, cursorCounter.getInt(cursorCounter.getColumnIndex(DataBaseHelper.CURRENT_VALUE_ONE)));
+            contentValues.put(DataBaseHelper.CURRENT_TIME, cursorCounter.getLong(cursorCounter.getColumnIndex(DataBaseHelper.CURRENT_TIME)));
+            contentValues.put(DataBaseHelper.TIME_OF_LAST_EDIT, cursorCounter.getString(cursorCounter.getColumnIndex(DataBaseHelper.TIME_OF_LAST_EDIT)));
+            database.insert(DataBaseHelper.COUNTER_TABLE, null, contentValues);
+            contentValues.clear();
+            Log.d(TAG, "insertCursors: successful");
+        } else {
+            Log.d(TAG, "insertCursors: cursor is empty");
+        }
+
+        if (cursorClicks.moveToFirst()) {
+            do {
+                //contentValues.put(DataBaseHelper.KEY_ID, cursorClicks.getLong(cursorClicks.getColumnIndex(DataBaseHelper.KEY_ID)));
+                contentValues.put(DataBaseHelper.NAME, cursorClicks.getString(cursorClicks.getColumnIndex(DataBaseHelper.NAME)));
+                contentValues.put(DataBaseHelper.NUMBER, cursorClicks.getInt(cursorClicks.getColumnIndex(DataBaseHelper.NUMBER)));
+                contentValues.put(DataBaseHelper.TYPE, cursorClicks.getInt(cursorClicks.getColumnIndex(DataBaseHelper.TYPE)));
+                contentValues.put(DataBaseHelper.TIME, cursorClicks.getLong(cursorClicks.getColumnIndex(DataBaseHelper.TIME)));
+                contentValues.put(DataBaseHelper.STAMP_DATE, cursorClicks.getString(cursorClicks.getColumnIndex(DataBaseHelper.STAMP_DATE)));
+                contentValues.put(DataBaseHelper.STAMP_TIME, cursorClicks.getString(cursorClicks.getColumnIndex(DataBaseHelper.STAMP_TIME)));
+                database.insert(DataBaseHelper.COUNTER_CLICK_TABLE, null, contentValues);
+                contentValues.clear();
+                Log.d(TAG, "insertCursors: click inserted");
+            } while (cursorClicks.moveToNext());
+        }
+        cursorClicks.close();
+        cursorCounter.close();
+    }
+
 
     public static int getNumberOfCounters(SQLiteDatabase database) {
         String countQuery = "SELECT  * FROM " + COUNTER_TABLE;
@@ -237,7 +314,14 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     @SuppressLint("Recycle")
     public static Cursor getAllCounters(SQLiteDatabase database) {
         return database.query(DataBaseHelper.COUNTER_TABLE,
-                null, null, null, null, null, null);
-                //DataBaseHelper.TIME_OF_LAST_EDIT + " DESC");
+                null, null, null, null, null,
+                DataBaseHelper.TIME_OF_LAST_EDIT + " DESC");
+    }
+
+    private static String getSQLDateTime() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        Date date = new Date();
+        return dateFormat.format(date);
     }
 }

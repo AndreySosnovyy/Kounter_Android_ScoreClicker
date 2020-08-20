@@ -24,8 +24,11 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -229,6 +232,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (countDownTimer != null) countDownTimer.cancel();
+                active = false;
                 finish();
             }
         });
@@ -302,8 +306,7 @@ public class MainActivity extends AppCompatActivity {
                             // TODO - условие из настроек
 
                             Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                            assert v != null;
-                            v.vibrate(800);
+                            if (v != null) v.vibrate(800);
 
                             timerSound = MediaPlayer.create(getApplicationContext(), R.raw.timer_sound);
                             timerSound.start();
@@ -357,8 +360,7 @@ public class MainActivity extends AppCompatActivity {
                         // TODO - условие из настроек
 
                         Vibrator v1 = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                        assert v1 != null;
-                        v1.vibrate(800);
+                        if (v1 != null) v1.vibrate(800);
 
                         finishSound = MediaPlayer.create(getApplicationContext(), R.raw.finish_sound);
                         finishSound.start();

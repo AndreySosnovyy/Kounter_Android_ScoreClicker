@@ -1,7 +1,9 @@
 package com.example.exhaustion;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +12,11 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 
 public class CounterViewAdapter extends RecyclerView.Adapter<CounterViewAdapter.CounterViewHolder> {
@@ -35,6 +42,14 @@ public class CounterViewAdapter extends RecyclerView.Adapter<CounterViewAdapter.
         return cursor.getCount();
     }
 
+    public static boolean isYesterday(Date d) {
+        return DateUtils.isToday(d.getTime() + DateUtils.DAY_IN_MILLIS);
+    }
+
+    public static boolean isThreeHoursAgo(Date d) {
+        return DateUtils.isToday(d.getTime() + DateUtils.HOUR_IN_MILLIS * 3);
+    }
+
     @Override
     public void onBindViewHolder(@NonNull CounterViewHolder holder, int position) {
         if (!cursor.moveToPosition(position)) return;
@@ -42,13 +57,31 @@ public class CounterViewAdapter extends RecyclerView.Adapter<CounterViewAdapter.
         String name = cursor.getString(cursor.getColumnIndex(DataBaseHelper.NAME));
         String time = cursor.getString(cursor.getColumnIndex(DataBaseHelper.TIME_OF_LAST_EDIT));
         int number = cursor.getInt(cursor.getColumnIndex(DataBaseHelper.NUMBER));
-
         long id = cursor.getLong(cursor.getColumnIndex(DataBaseHelper.KEY_ID));
 
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat output = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+
+        String formattedTime = time;
+        try {
+            Date res = df.parse(time);
+            formattedTime = output.format(res);
+
+            if (DateUtils.isToday(res.getTime())) {
+                formattedTime = "Сегодня в" + formattedTime.substring(10);
+                //formattedTime = DateUtils.getRelativeTimeSpanString(res.getTime());
+            } else if (isYesterday(res)) {
+                formattedTime = "Вчера в" + formattedTime.substring(10);
+            }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
         holder.nameField.setText(name);
-        holder.editTimeField.setText(time);
+        holder.editTimeField.setText(formattedTime);
         holder.numberValueField.setText(String.valueOf(number));
-        holder.itemView.setTag(id);
+        holder.itemView.setTag(name);
     }
 
     public class CounterViewHolder extends RecyclerView.ViewHolder {
@@ -68,11 +101,16 @@ public class CounterViewAdapter extends RecyclerView.Adapter<CounterViewAdapter.
         if (cursor != null) {
             cursor.close();
         }
-
         cursor = newCursor;
-
         if (newCursor != null) {
             notifyDataSetChanged();
         }
+    }
+
+    public void swapCursorWithoutNotify(Cursor newCursor) {
+        if (cursor != null) {
+            cursor.close();
+        }
+        cursor = newCursor;
     }
 }

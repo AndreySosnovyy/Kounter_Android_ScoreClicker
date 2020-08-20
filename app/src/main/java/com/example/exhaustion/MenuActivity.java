@@ -4,12 +4,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
@@ -22,15 +24,20 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 
 
 public class MenuActivity extends AppCompatActivity implements CustomDialogFragment.CustomFragmentDialogListener {
@@ -44,9 +51,14 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
     View timerLineOff, timerLineOn, stopwatchLineOff, stopwatchLineOn;
     CompoundButton previousRB;
     Animation scaleAnimation, reverseScaleAnimation, pickTimeButtonAnimation, pickTimeButtonAnimationReverse;
+
     DataBaseHelper dataBaseHelper;
+
     RecyclerView recyclerView;
     CounterViewAdapter counterViewAdapter = null;
+
+    String deletedCounter = null; // для recyclerView
+    boolean deletedFlag = true;
 
     private static final String TAG = "DEBUG LOGS";
 
@@ -104,11 +116,16 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
         dataBaseHelper = new DataBaseHelper(this);
 
         // работа с recyclerView
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
         counterViewAdapter = new CounterViewAdapter(this, DataBaseHelper.getAllCounters(dataBaseHelper.getWritableDatabase()));
         //DataBaseHelper.printCounters(dataBaseHelper.getWritableDatabase());
         recyclerView.setAdapter(counterViewAdapter);
+        recyclerView.addItemDecoration(new SimpleDividerItemDecoration(this));
+
+
+
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -117,15 +134,38 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
                 return false;
             }
 
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                SQLiteDatabase database = dataBaseHelper.getWritableDatabase();
-                database.delete(DataBaseHelper.COUNTER_TABLE,
-                        DataBaseHelper.KEY_ID + " = ?", new  String[]{String.valueOf(viewHolder.itemView.getTag())});
-                counterViewAdapter.swapCursor(DataBaseHelper.getAllCounters(database));
+            public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
+                final int position = viewHolder.getAdapterPosition();
+                deletedCounter = String.valueOf(viewHolder.itemView.getTag());
+                deletedFlag = true;
+
+                // удаление счетчика + сохранение его на случай возврата
+                final SQLiteDatabase database = dataBaseHelper.getWritableDatabase();
+                final Cursor[] cursors = DataBaseHelper.safeDeleteCounter(database, String.valueOf(viewHolder.itemView.getTag()));
+
+                counterViewAdapter.notifyItemRemoved(position);
+                counterViewAdapter.swapCursorWithoutNotify(DataBaseHelper.getAllCounters(database));
+                counterViewAdapter.notifyItemRangeChanged(position, counterViewAdapter.getItemCount());
+
+                Snackbar.make(recyclerView, "Отменить удаление " + deletedCounter + "?", Snackbar.LENGTH_LONG)
+                        .setAction("Отменить", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                DataBaseHelper.insertCursors(database, cursors);
+                                counterViewAdapter.notifyItemInserted(position);
+                                counterViewAdapter.swapCursor(DataBaseHelper.getAllCounters(database));
+                                counterViewAdapter.notifyItemRangeChanged(position, counterViewAdapter.getItemCount());
+                            }
+                        }).setBackgroundTint(getResources().getColor(R.color.blue))
+                        .setActionTextColor(getResources().getColor(R.color.white))
+                        .show();
+
+                // TODO условие из настроек
+
+                Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                if (v != null) v.vibrate(30);
             }
         }).attachToRecyclerView(recyclerView);
-
-
 
         nameField.setFilters(new InputFilter[]{new InputFilter.LengthFilter(24)});
         startValueField.setFilters(new InputFilter[]{new InputFilter.LengthFilter(5)});
@@ -137,8 +177,6 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
         reverseScaleAnimation = AnimationUtils.loadAnimation(this, R.anim.scale_reverse);
         pickTimeButtonAnimation = AnimationUtils.loadAnimation(this, R.anim.pick_time_button_anim);
         pickTimeButtonAnimationReverse = AnimationUtils.loadAnimation(this, R.anim.pick_time_button_anim_reverse);
-
-
 
         toolbar.setTitle("      Kounter");
         setSupportActionBar(toolbar);
@@ -242,7 +280,7 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
                         public void run() {
                             nameField.setText("");
                         }
-                    }, 1000);
+                    }, 200);
                 }
                 cursor.close();
 
