@@ -162,8 +162,8 @@ public class MainActivity extends AppCompatActivity {
     CounterData currentCounter;
     Button counterButton;
     Toolbar toolbar;
-    TextView timeScreenHead;
-    Chronometer chronometer;
+    //TextView timeScreenHead;
+    Chronometer timeScreenHead;
     TextView startTimerTextView, timerPicture, finishTextView, stopwatchTimeAfterFinishTextView;
     Animation upAnimation, fadeInAnimation, fadeOutAnimation;
     CountDownTimer countDownTimer;
@@ -239,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
 
         counterButton = findViewById(R.id.counterButton);
         timeScreenHead = findViewById(R.id.timeScreenHead);
-        chronometer = findViewById(R.id.chronometer);
+        //chronometer = findViewById(R.id.chronometer);
         upAnimation = AnimationUtils.loadAnimation(this, R.anim.up_moving);
         fadeInAnimation = AnimationUtils.loadAnimation(this, R.anim.fade_in);
         fadeOutAnimation = AnimationUtils.loadAnimation(this, R.anim.fade_out);
@@ -317,7 +317,8 @@ public class MainActivity extends AppCompatActivity {
                 else if (isStopwatch && !flagStopwatchStarted) {
                     flagStopwatchStarted = true;
                     startTimerTextView.setVisibility(View.INVISIBLE);
-                    chronometer.start();
+                    timeScreenHead.setBase(SystemClock.elapsedRealtime());
+                    timeScreenHead.start();
                 }
                 // инкремент счетчика + добавлнеие клика в базу данных + проверка на финиш
                 else {
@@ -354,8 +355,11 @@ public class MainActivity extends AppCompatActivity {
                         if (isTimer || isStopwatch) {
                             timeScreenHead.startAnimation(upAnimation);
                             timeScreenHead.setVisibility(View.INVISIBLE);
+                            timeScreenHead.startAnimation(upAnimation);
+                            timeScreenHead.setVisibility(View.INVISIBLE);
+                            timeScreenHead.stop();
                         }
-                        chronometer.stop();
+
 
                         // TODO - условие из настроек
 
@@ -464,7 +468,7 @@ public class MainActivity extends AppCompatActivity {
         }
         // инициализация, если есть секундомер
         else if (isStopwatch) {
-            chronometer.setVisibility(View.VISIBLE);
+            timeScreenHead.setVisibility(View.VISIBLE);
             startTimerTextView.setVisibility(View.VISIBLE);
             startTimerTextView.setText("Нажмите, чтобы начать секундомер");
         }

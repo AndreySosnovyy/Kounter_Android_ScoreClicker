@@ -231,11 +231,11 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             Log.d(TAG, "UNABLE TO DELETE CURRENT COUNTER " + name + " FROM DATABASE OR DELETED MORE THEN 1");
         }
         int delCount2 = database.delete(DataBaseHelper.COUNTER_CLICK_TABLE, DataBaseHelper.NAME + " = ?", new String[]{name});
-//        if (delCount == 0) {
-//            Log.d(TAG, "0 CLICK DELETED (COUNTER " + name + ")");
-//        } else {
-//            Log.d(TAG, "DELETED " + delCount2 + " CLICKS FROM COUNTER " + name);
-//        }
+        if (delCount == 0) {
+            //Log.d(TAG, "0 CLICK DELETED (COUNTER " + name + ")");
+        } else {
+            //Log.d(TAG, "DELETED " + delCount2 + " CLICKS FROM COUNTER " + name);
+        }
     }
 
     @SuppressLint("Recycle")
@@ -243,14 +243,14 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         Cursor[] cursorArray = new Cursor[2];
 
         cursorArray[0] = database.query(DataBaseHelper.COUNTER_TABLE, null, DataBaseHelper.NAME + " = ?", new String[]{name}, null, null, null);;
-//        if (cursorArray[0].moveToFirst()) {
-//            Log.d(TAG, "safeDeleteCounter: cursor filled with counter");
-//        }
+        if (cursorArray[0].moveToFirst()) {
+            //Log.d(TAG, "safeDeleteCounter: cursor filled with counter");
+        }
 
         cursorArray[1] = database.query(DataBaseHelper.COUNTER_CLICK_TABLE, null, DataBaseHelper.NAME + " = ?", new String[]{name}, null, null, null);;
-//        if (cursorArray[1].moveToFirst()) {
-//            Log.d(TAG, "safeDeleteCounter: cursor filled with clicks");
-//        }
+        if (cursorArray[1].moveToFirst()) {
+            //Log.d(TAG, "safeDeleteCounter: cursor filled with clicks");
+        }
 
         deleteCounter(database, name);
         return cursorArray;
@@ -280,9 +280,9 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             database.insert(DataBaseHelper.COUNTER_TABLE, null, contentValues);
             contentValues.clear();
             //Log.d(TAG, "insertCursors: successful");
-        } //else {
+        } else {
             //Log.d(TAG, "insertCursors: cursor is empty");
-        //}
+        }
 
         if (cursorClicks.moveToFirst()) {
             do {
