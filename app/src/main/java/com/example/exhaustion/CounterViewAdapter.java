@@ -23,10 +23,12 @@ public class CounterViewAdapter extends RecyclerView.Adapter<CounterViewAdapter.
 
     private Context context;
     private Cursor cursor;
+    private onItemListener onItemListener;
 
-    public CounterViewAdapter(Context context, Cursor cursor) {
+    public CounterViewAdapter(Context context, Cursor cursor, onItemListener onItemListener) {
         this.context = context;
         this.cursor = cursor;
+        this.onItemListener = onItemListener;
     }
 
     @NonNull
@@ -60,7 +62,7 @@ public class CounterViewAdapter extends RecyclerView.Adapter<CounterViewAdapter.
         long id = cursor.getLong(cursor.getColumnIndex(DataBaseHelper.KEY_ID));
 
         @SuppressLint("SimpleDateFormat") SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat output = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat output = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 
         String formattedTime = time;
         try {
@@ -94,6 +96,13 @@ public class CounterViewAdapter extends RecyclerView.Adapter<CounterViewAdapter.
             nameField = itemView.findViewById(R.id.rv_nameField);
             numberValueField = itemView.findViewById(R.id.rv_numberValue);
             editTimeField = itemView.findViewById(R.id.rv_editTime);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onItemListener.onClickListener(getAdapterPosition());
+                }
+            });
         }
     }
 
@@ -112,5 +121,9 @@ public class CounterViewAdapter extends RecyclerView.Adapter<CounterViewAdapter.
             cursor.close();
         }
         cursor = newCursor;
+    }
+
+    public interface onItemListener {
+        void onClickListener(int position);
     }
 }

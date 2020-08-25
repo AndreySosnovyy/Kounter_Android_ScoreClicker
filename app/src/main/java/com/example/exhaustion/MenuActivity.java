@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.os.Vibrator;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -44,7 +45,9 @@ import com.google.android.material.snackbar.Snackbar;
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
 
-public class MenuActivity extends AppCompatActivity implements CustomDialogFragment.CustomFragmentDialogListener {
+public class MenuActivity extends AppCompatActivity
+        implements CustomDialogFragment.CustomFragmentDialogListener,
+        CounterViewAdapter.onItemListener {
 
     RadioButton radioButton1, radioButton2, radioButton3, radioButton4;
     Switch timerSwitch, stopwatchSwitch;
@@ -123,13 +126,9 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-        counterViewAdapter = new CounterViewAdapter(this, DataBaseHelper.getAllCounters(dataBaseHelper.getWritableDatabase()));
-        //DataBaseHelper.printCounters(dataBaseHelper.getWritableDatabase());
+        counterViewAdapter = new CounterViewAdapter(this, DataBaseHelper.getAllCounters(dataBaseHelper.getWritableDatabase()), this);
         recyclerView.setAdapter(counterViewAdapter);
         recyclerView.addItemDecoration(new SimpleDividerItemDecoration(this));
-
-
-
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -269,27 +268,28 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
                         intent = new Intent(getApplicationContext(), Main4Activity.class);
                     }
 
-                    String startValue = "0", finishValue = String.valueOf(Integer.MAX_VALUE), stepValue = "1";
+                    int startValue = 0, finishValue = Integer.MAX_VALUE, stepValue = 1;
                     if (!startValueField.getText().toString().equals("")) {
-                        startValue = startValueField.getText().toString();
+                        startValue = Integer.parseInt(startValueField.getText().toString());
                     }
                     if (!finishValueField.getText().toString().equals("")) {
-                        finishValue = finishValueField.getText().toString();
+                        finishValue = Integer.parseInt(finishValueField.getText().toString());
                     }
                     if (!stepValueField.getText().toString().equals("")) {
-                        stepValue = stepValueField.getText().toString();
+                        stepValue = Integer.parseInt(stepValueField.getText().toString());
                     }
 
-                    intent.putExtra("NAME", "" + nameField.getText().toString());
-                    intent.putExtra("START_VALUE", "" + startValue);
-                    intent.putExtra("FINISH_VALUE", "" + finishValue);
-                    intent.putExtra("STEP_VALUE", "" + stepValue);
-                    intent.putExtra("TIMER", "" + timerSwitch.isChecked());
-                    intent.putExtra("STOPWATCH", "" + stopwatchSwitch.isChecked());
-                    intent.putExtra("TIMER_VALUE_HOURS", "" + timerHours);
-                    intent.putExtra("TIMER_VALUE_MINUTES", "" + timerMinutes);
-                    intent.putExtra("TIMER_VALUE_SECONDS", "" + timerSeconds);
+                    intent.putExtra("NAME", nameField.getText().toString());
+                    intent.putExtra("START_VALUE", startValue);
+                    intent.putExtra("FINISH_VALUE", finishValue);
+                    intent.putExtra("STEP_VALUE", stepValue);
+                    intent.putExtra("TIMER", timerSwitch.isChecked());
+                    intent.putExtra("STOPWATCH", stopwatchSwitch.isChecked());
+                    intent.putExtra("TIMER_VALUE_HOURS", timerHours);
+                    intent.putExtra("TIMER_VALUE_MINUTES", timerMinutes);
+                    intent.putExtra("TIMER_VALUE_SECONDS", timerSeconds);
                     startActivity(intent);
+
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -464,4 +464,59 @@ public class MenuActivity extends AppCompatActivity implements CustomDialogFragm
             createCounterButton.setBackground(getResources().getDrawable(R.drawable.unclickable_create_button));
         }
     }
+
+    long lastClickTime = 0;
+
+    @Override
+    public void onClickListener(int position) {
+        if (SystemClock.elapsedRealtime() - lastClickTime < 300) {
+            return;
+        }
+        lastClickTime = SystemClock.elapsedRealtime();
+        RecyclerView.ViewHolder viewHolder = recyclerView.findViewHolderForAdapterPosition(position);
+        String name = String.valueOf(viewHolder.itemView.getTag());
+        SQLiteDatabase database = dataBaseHelper.getWritableDatabase();
+        Cursor cursor = database.query(DataBaseHelper.COUNTER_TABLE, null, DataBaseHelper.NAME + " = ?",
+                new String[]{name}, null, null, null);
+        if (cursor.moveToFirst()) {
+            int number = cursor.getInt(cursor.getColumnIndex(DataBaseHelper.NUMBER));
+            DataBaseHelper.printCounters(database);
+
+            Intent intent = new Intent();
+            switch (number) {
+                case 1:
+                    intent = new Intent(getApplicationContext(), MainActivity.class);
+                    break;
+                case 2:
+                    intent = new Intent(getApplicationContext(), Main2Activity.class);
+                    break;
+                case 3:
+                    intent = new Intent(getApplicationContext(), Main3Activity.class);
+                    break;
+                case 4:
+                    intent = new Intent(getApplicationContext(), Main4Activity.class);
+                    break;
+            }
+
+            intent.putExtra("FLAG", true);
+            intent.putExtra("NAME", name);
+            intent.putExtra("START_VALUE", cursor.getInt(cursor.getColumnIndex(DataBaseHelper.START_VALUE)));
+            intent.putExtra("FINISH_VALUE", cursor.getInt(cursor.getColumnIndex(DataBaseHelper.FINISH_VALUE)));
+            intent.putExtra("STEP_VALUE", cursor.getInt(cursor.getColumnIndex(DataBaseHelper.STEP_VALUE)));
+            intent.putExtra("TIMER", cursor.getInt(cursor.getColumnIndex(DataBaseHelper.IS_TIMER)) != 0);
+            intent.putExtra("STOPWATCH", cursor.getInt(cursor.getColumnIndex(DataBaseHelper.IS_STOPWATCH)) != 0);
+            intent.putExtra("TIMER_VALUE_HOURS", cursor.getInt(cursor.getColumnIndex(DataBaseHelper.TIMER_HOURS)));
+            intent.putExtra("TIMER_VALUE_MINUTES", cursor.getInt(cursor.getColumnIndex(DataBaseHelper.TIMER_MINUTES)));
+            intent.putExtra("TIMER_VALUE_SECONDS", cursor.getInt(cursor.getColumnIndex(DataBaseHelper.TIMER_SECONDS)));
+            //intent.putExtra("CURRENT_VALUE_ONE", cursor.getInt(cursor.getColumnIndex(DataBaseHelper.CURRENT_VALUE_ONE)));
+            //intent.putExtra("CURRENT_VALUE_TWO", cursor.getInt(cursor.getColumnIndex(DataBaseHelper.CURRENT_VALUE_TWO)));
+            //intent.putExtra("CURRENT_VALUE_THREE", cursor.getInt(cursor.getColumnIndex(DataBaseHelper.CURRENT_VALUE_THREE)));
+            //intent.putExtra("CURRENT_VALUE_FOUR", cursor.getInt(cursor.getColumnIndex(DataBaseHelper.CURRENT_VALUE_FOUR)));
+            //intent.putExtra("CURRENT_TIME", cursor.getLong(cursor.getColumnIndex(DataBaseHelper.CURRENT_TIME)));
+            //intent.putExtra("TIME_OF_LAST_EDIT", cursor.getString(cursor.getColumnIndex(DataBaseHelper.TIME_OF_LAST_EDIT)));
+            startActivity(intent);
+        }
+        cursor.close();
+    }
+
 }

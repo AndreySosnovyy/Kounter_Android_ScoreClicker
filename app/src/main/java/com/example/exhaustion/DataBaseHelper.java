@@ -207,22 +207,29 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     public static void createNewCounter(SQLiteDatabase database, String name, int number, int startValue, int finishValue, int stepValue,
                                         boolean isTimer, boolean isStopwatch, int timerHours, int timerMinutes, int timerSeconds, String timeOfLastEdit) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(DataBaseHelper.NAME, name);
-        contentValues.put(DataBaseHelper.NUMBER, number);
-        contentValues.put(DataBaseHelper.START_VALUE, startValue);
-        contentValues.put(DataBaseHelper.FINISH_VALUE, finishValue);
-        contentValues.put(DataBaseHelper.STEP_VALUE, stepValue);
-        contentValues.put(DataBaseHelper.IS_TIMER, isTimer);
-        contentValues.put(DataBaseHelper.IS_STOPWATCH, isStopwatch);
-        contentValues.put(DataBaseHelper.TIMER_HOURS, timerHours);
-        contentValues.put(DataBaseHelper.TIMER_MINUTES, timerMinutes);
-        contentValues.put(DataBaseHelper.TIMER_SECONDS, timerSeconds);
-        contentValues.put(DataBaseHelper.CURRENT_VALUE_ONE, startValue);
-        contentValues.put(DataBaseHelper.CURRENT_TIME, 0);
-        contentValues.put(DataBaseHelper.TIME_OF_LAST_EDIT, getSQLDateTime());
-        database.insert(DataBaseHelper.COUNTER_TABLE, null, contentValues);
-        contentValues.clear();
+        Cursor cursor = database.query(DataBaseHelper.COUNTER_TABLE, null, DataBaseHelper.NAME + " = ?",
+                new String[]{name}, null, null, null);
+        if (!cursor.moveToFirst()) {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(DataBaseHelper.NAME, name);
+            contentValues.put(DataBaseHelper.NUMBER, number);
+            contentValues.put(DataBaseHelper.START_VALUE, startValue);
+            contentValues.put(DataBaseHelper.FINISH_VALUE, finishValue);
+            contentValues.put(DataBaseHelper.STEP_VALUE, stepValue);
+            contentValues.put(DataBaseHelper.IS_TIMER, isTimer);
+            contentValues.put(DataBaseHelper.IS_STOPWATCH, isStopwatch);
+            contentValues.put(DataBaseHelper.TIMER_HOURS, timerHours);
+            contentValues.put(DataBaseHelper.TIMER_MINUTES, timerMinutes);
+            contentValues.put(DataBaseHelper.TIMER_SECONDS, timerSeconds);
+            contentValues.put(DataBaseHelper.CURRENT_VALUE_ONE, startValue);
+            contentValues.put(DataBaseHelper.CURRENT_TIME, 0);
+            contentValues.put(DataBaseHelper.TIME_OF_LAST_EDIT, getSQLDateTime());
+            database.insert(DataBaseHelper.COUNTER_TABLE, null, contentValues);
+            contentValues.clear();
+        }
+        else {
+            Log.d(TAG, "ERROR WHILE CREATION NEW COUNTER: " + name + " ALREADY EXISTS");
+        }
     }
 
     public static void deleteCounter(SQLiteDatabase database, String name) {
@@ -323,5 +330,28 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         Date date = new Date();
         return dateFormat.format(date);
+    }
+
+    public static void restartCounter(SQLiteDatabase database, String name) {
+        Cursor cursor = database.query(DataBaseHelper.COUNTER_TABLE, null, DataBaseHelper.NAME + " = ?",
+                new String[]{name}, null, null, null);
+        int startValue = 0;
+        if (cursor.moveToFirst()) {
+            startValue = cursor.getInt(cursor.getColumnIndex(DataBaseHelper.START_VALUE));
+        }
+        cursor.close();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DataBaseHelper.CURRENT_TIME, 0);
+        contentValues.put(DataBaseHelper.CURRENT_VALUE_ONE, startValue);
+        contentValues.put(DataBaseHelper.CURRENT_VALUE_TWO, startValue);
+        contentValues.put(DataBaseHelper.CURRENT_VALUE_THREE, startValue);
+        contentValues.put(DataBaseHelper.CURRENT_VALUE_FOUR, startValue);
+        int updCount = database.update(DataBaseHelper.COUNTER_TABLE, contentValues,
+                DataBaseHelper.NAME + " = ?", new String[]{name});
+        contentValues.clear();
+        if (updCount != 1) {
+            Log.d(TAG, "ERROR : UNABLE TO RESET COUNTER " + name);
+        }
     }
 }
