@@ -82,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
                         if (countDownTimer != null)
                             countDownTimer.cancel(); // отмена таймера, потому что он работает независимо от MainActivity
 
-                        //DataBaseHelper.deleteCounter(dataBaseHelper.getWritableDatabase(), globalName);
                         DataBaseHelper.restartCounter(dataBaseHelper.getWritableDatabase(), globalName);
 
                         backgroundThread.interrupt();
@@ -145,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
     CountDownTimer countDownTimer;
     View indicator;
 
-    static boolean active = true;
+    static boolean active = false;
     static String globalName;
 
     long timeAtStart;
@@ -205,46 +204,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // если нет таймера и секундомера, то пропускать условие в обработчике длинного клика перед началом таймера/секундомера
-        if (!isStopwatch && !isTimer) {
-            flagStopwatchStarted = true;
-            flagTimerStarted = true;
-            active = true;
-            timeAtStart = SystemClock.elapsedRealtime();
-        }
-
-        // инициализация, если есть таймер
-        if (isTimer) {
-            active = false;
-            timeScreenHead.setVisibility(View.VISIBLE);
-            startTimerTextView.setVisibility(View.VISIBLE);
-            if (extraFlag) {
-                startTimerTextView.setText("Нажмите, чтобы продолжить таймер");
-            } else {
-                startTimerTextView.setText("Нажмите, чтобы начать таймер");
-            }
-
-            if (timerHours > 0) {
-                timeScreenHead.setText(String.format("%02d:%02d:%02d", timerHours, timerMinutes, timerSeconds));
-            } else if (timerMinutes > 0) {
-                timeScreenHead.setText(String.format("%02d:%02d", timerMinutes, timerSeconds));
-            } else {
-                timeScreenHead.setText(String.format("%d", timerSeconds));
-            }
-        }
-        // инициализация, если есть секундомер
-        else if (isStopwatch) {
-            active = false;
-            timeScreenHead.setVisibility(View.VISIBLE);
-            startTimerTextView.setVisibility(View.VISIBLE);
-            if (extraFlag) {
-                startTimerTextView.setText("Нажмите, чтобы продолжить секундомер");
-            } else {
-                startTimerTextView.setText("Нажмите, чтобы начать секундомер");
-            }
-
-        }
-
         // если данные переданы при открытии существующего сетчика (не создании)
         if (extraFlag) {
             Cursor cursor = database.query(DataBaseHelper.COUNTER_TABLE, null, DataBaseHelper.NAME + " = ?",
@@ -283,22 +242,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 }
-            } else {
-                if (isStopwatch) {
-                    long timeGone = currentTime;
-                    int hoursGone = (int) TimeUnit.MILLISECONDS.toHours(timeGone);
-                    int minutesGone = (int) TimeUnit.MILLISECONDS.toMinutes(timeGone) % 60;
-                    int secondsGone = (int) TimeUnit.MILLISECONDS.toSeconds(timeGone) % 60;
-                    if (hoursGone > 0) {
-                        timeScreenHead.setText(String.format("%02d:%02d:%02d", hoursGone, minutesGone, secondsGone));
-                    } else {
-                        timeScreenHead.setText(String.format("%02d:%02d", minutesGone, secondsGone));
-                    }
-                }
-
-                if (isTimer) {
-                    // TODO -  закидывать актуальное время в заголовок
-                }
             }
         } else { // если счетчик только создался, а не открылся
             String[] temp = GetDateAndTime();
@@ -308,16 +251,91 @@ public class MainActivity extends AppCompatActivity {
             DataBaseHelper.createNewCounter(database, name, 1, startValue, finishValue, stepValue, isTimer, isStopwatch,
                     timerHours, timerMinutes, timerSeconds, timeOfCreation);
 
-            // если есть финиш, то показывать его в отдельном view (слева снизу)
-            if (finishValue != Integer.MAX_VALUE) {
-                finishTextView.setText("Финиш - " + finishValue);
-            }
-
             // закидываем стартовое значение в счетчик
             counterButton.setText(String.valueOf(startValue));
-            if (startValue > 9999 && startValue < 100000) counterButton.setTextSize(144);
+            setActualTextSize(startValue, counterButton);
         }
 
+        // если нет таймера и секундомера, то пропускать условие в обработчике длинного клика перед началом таймера/секундомера
+        if (!isStopwatch && !isTimer) {
+            flagStopwatchStarted = true;
+            flagTimerStarted = true;
+            active = true;
+            timeAtStart = SystemClock.elapsedRealtime() + currentTime;
+        }
+
+        // инициализация, если есть таймер
+        if (isTimer) {
+            boolean timerEndFlag = false;
+            Cursor cursor = database.query(DataBaseHelper.COUNTER_TABLE, null, DataBaseHelper.NAME + " = ?",
+                    new String[]{name}, null, null, null);
+            if (cursor.moveToFirst()) {
+                timerEndFlag = cursor.getInt(cursor.getColumnIndex(DataBaseHelper.IS_TIMER_END)) != 0;
+            }
+            cursor.close();
+
+            if (!timerEndFlag) {
+                active = false;
+                timeScreenHead.setVisibility(View.VISIBLE);
+                startTimerTextView.setVisibility(View.VISIBLE);
+                if (extraFlag) {
+                    startTimerTextView.setText("Нажмите, чтобы продолжить таймер");
+                } else {
+                    startTimerTextView.setText("Нажмите, чтобы начать таймер");
+                }
+
+                long timerHMS = timerHours * 3600000 + timerMinutes * 60000 + timerSeconds * 1000;
+                long timerTime = timerHMS - currentTime;
+                if (timerHMS != timerTime) {
+                    timerTime += 1000;
+                }
+
+                int hoursToGo = (int) TimeUnit.MILLISECONDS.toHours(timerTime);
+                int minutesToGo = (int) TimeUnit.MILLISECONDS.toMinutes(timerTime) % 60;
+                int secondsToGo = (int) TimeUnit.MILLISECONDS.toSeconds(timerTime) % 60;
+
+                if (hoursToGo > 0) {
+                    timeScreenHead.setText(String.format("%02d:%02d:%02d", hoursToGo, minutesToGo, secondsToGo));
+                } else if (minutesToGo > 0) {
+                    timeScreenHead.setText(String.format("%02d:%02d", minutesToGo, secondsToGo));
+                } else {
+                    timeScreenHead.setText(String.format("%d", secondsToGo));
+                }
+            } else {
+                timeScreenHead.setVisibility(View.INVISIBLE);
+                counterButton.setEnabled(false);
+                counterButton.setTextColor(getResources().getColor(R.color.red));
+                timerPicture.setVisibility(View.VISIBLE);
+            }
+
+
+        }
+        // инициализация, если есть секундомер
+        else if (isStopwatch) {
+            active = false;
+            timeScreenHead.setVisibility(View.VISIBLE);
+            startTimerTextView.setVisibility(View.VISIBLE);
+            if (extraFlag) {
+                startTimerTextView.setText("Нажмите, чтобы продолжить секундомер");
+            } else {
+                startTimerTextView.setText("Нажмите, чтобы начать секундомер");
+            }
+
+            long timeGone = currentTime;
+            int hoursGone = (int) TimeUnit.MILLISECONDS.toHours(timeGone);
+            int minutesGone = (int) TimeUnit.MILLISECONDS.toMinutes(timeGone) % 60;
+            int secondsGone = (int) TimeUnit.MILLISECONDS.toSeconds(timeGone) % 60;
+            if (hoursGone > 0) {
+                timeScreenHead.setText(String.format("%02d:%02d:%02d", hoursGone, minutesGone, secondsGone));
+            } else {
+                timeScreenHead.setText(String.format("%02d:%02d", minutesGone, secondsGone));
+            }
+        }
+
+        // если есть финиш, то показывать его в отдельном view (слева снизу)
+        if (finishValue != Integer.MAX_VALUE) {
+            finishTextView.setText("Финиш - " + finishValue);
+        }
 
         // обработка обычного клика счетчика
         counterButton.setOnClickListener(new View.OnClickListener() {
@@ -331,11 +349,8 @@ public class MainActivity extends AppCompatActivity {
                     flagTimerStarted = true;
                     startTimerTextView.setVisibility(View.INVISIBLE);
 
-                    // TODO - вычислять значение времени для таймера, учитывая currentTime
-                    // TODO - выводить в timeScreenHead актуальное значение времени на момент старта таймера
-                    // TODO - если закончилось время таймера
-
-                    int timerTime = timerHours * 3600000 + timerMinutes * 60000 + timerSeconds * 1000;
+                    final long timerHMS = timerHours * 3600000 + timerMinutes * 60000 + timerSeconds * 1000;
+                    final long timerTime = timerHMS - currentTime / 1000 * 1000;
 
                     // начало таймера
                     countDownTimer = new CountDownTimer(timerTime, 1000) {
@@ -359,6 +374,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onFinish() {
                             active = false; // для остановки обновлений
+                            DataBaseHelper.setTimerEnd(database, name, 1);
                             timeScreenHead.setText("0");
                             timeScreenHead.startAnimation(upAnimation);
                             timeScreenHead.setVisibility(View.INVISIBLE);

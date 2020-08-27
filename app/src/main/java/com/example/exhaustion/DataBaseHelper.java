@@ -34,6 +34,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public final static String FINISH_VALUE = "finishValue";
     public final static String STEP_VALUE = "stepValue";
     public final static String IS_TIMER = "isTimer";
+    public final static String IS_TIMER_END = "isTimerEnd";
     public final static String IS_STOPWATCH = "isStopwatch";
     public final static String TIMER_HOURS = "timerHours";
     public final static String TIMER_MINUTES = "timerMinutes";
@@ -68,6 +69,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 FINISH_VALUE + " INTEGER, " +    // финишное значение
                 STEP_VALUE + " INTEGER, " +    // шаг счетчика
                 IS_TIMER + " INTEGER, " +    // есть ли таймер
+                IS_TIMER_END + " INTEGER DEFAULT 0, " +    // кончилось ли время таймера
                 IS_STOPWATCH + " INTEGER, " +    // есть ли секундомер
                 TIMER_HOURS + " INTEGER, " +    // часы для таймера
                 TIMER_MINUTES + " INTEGER, " +    // минуты для таймера
@@ -347,6 +349,18 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         contentValues.put(DataBaseHelper.CURRENT_VALUE_TWO, startValue);
         contentValues.put(DataBaseHelper.CURRENT_VALUE_THREE, startValue);
         contentValues.put(DataBaseHelper.CURRENT_VALUE_FOUR, startValue);
+        contentValues.put(DataBaseHelper.IS_TIMER_END, 0);
+        int updCount = database.update(DataBaseHelper.COUNTER_TABLE, contentValues,
+                DataBaseHelper.NAME + " = ?", new String[]{name});
+        contentValues.clear();
+        if (updCount != 1) {
+            Log.d(TAG, "ERROR : UNABLE TO RESET COUNTER " + name);
+        }
+    }
+
+    public static void setTimerEnd(SQLiteDatabase database, String name, int value) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DataBaseHelper.IS_TIMER_END, value);
         int updCount = database.update(DataBaseHelper.COUNTER_TABLE, contentValues,
                 DataBaseHelper.NAME + " = ?", new String[]{name});
         contentValues.clear();
