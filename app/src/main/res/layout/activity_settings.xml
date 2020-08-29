@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar" />
+
+    <Switch
+        android:id="@+id/vibrationSwitch"
+        android:layout_width="180dp"
+        android:layout_height="36dp"
+        android:fontFamily="@font/roboto"
+        android:switchMinWidth="50dp"
+        android:text="Вибрация"
+        android:textColorHint="@color/grey_font"
+        android:textColor="@color/grey_font"
+        android:textSize="24sp"
+        android:thumb="@drawable/switch_thumb_selector"
+        android:track="@drawable/switch_track_selector"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.212"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.176"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+    <Switch
+        android:id="@+id/soundSwitch"
+        android:layout_width="140dp"
+        android:layout_height="36dp"
+        android:fontFamily="@font/roboto"
+        android:switchMinWidth="50dp"
+        android:text="Звуки"
+        android:textColorHint="@color/grey_font"
+        android:textColor="@color/grey_font"
+        android:textSize="24sp"
+        android:thumb="@drawable/switch_thumb_selector"
+        android:track="@drawable/switch_track_selector"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.18"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.113"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+    <View
+        android:id="@+id/sound_view_line_on"
+        android:layout_width="1.7dp"
+        android:layout_height="12dp"
+        android:layout_marginStart="104dp"
+        android:layout_marginTop="12dp"
+        android:background="@color/blue"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/soundSwitch"
+        app:layout_constraintEnd_toEndOf="@+id/soundSwitch"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/soundSwitch"
+        app:layout_constraintTop_toTopOf="@+id/soundSwitch"
+        app:layout_constraintVertical_bias="0" />
+
+    <View
+        android:id="@+id/sound_view_line_off"
+        android:layout_width="1.7dp"
+        android:layout_height="12dp"
+        android:layout_marginStart="124dp"
+        android:layout_marginTop="12dp"
+        android:background="@color/unchecked_blue"
+        app:layout_constraintBottom_toBottomOf="@+id/soundSwitch"
+        app:layout_constraintEnd_toEndOf="@+id/soundSwitch"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/soundSwitch"
+        app:layout_constraintTop_toTopOf="@+id/soundSwitch"
+        app:layout_constraintVertical_bias="0." />
+
+    <View
+        android:id="@+id/vibration_view_line_on"
+        android:layout_width="1.7dp"
+        android:layout_height="12dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
+        android:background="@color/blue"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/vibrationSwitch"
+        app:layout_constraintEnd_toEndOf="@+id/vibrationSwitch"
+        app:layout_constraintHorizontal_bias="0.814"
+        app:layout_constraintStart_toStartOf="@+id/vibrationSwitch"
+        app:layout_constraintTop_toTopOf="@+id/vibrationSwitch"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <View
+        android:id="@+id/vibration_view_line_off"
+        android:layout_width="1.7dp"
+        android:layout_height="12dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
+        android:background="@color/unchecked_blue"
+        app:layout_constraintBottom_toBottomOf="@+id/vibrationSwitch"
+        app:layout_constraintEnd_toEndOf="@+id/vibrationSwitch"
+        app:layout_constraintHorizontal_bias="0.926"
+        app:layout_constraintStart_toStartOf="@+id/vibrationSwitch"
+        app:layout_constraintTop_toTopOf="@+id/vibrationSwitch"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <Button
+        android:id="@+id/clearDatabaseButton"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@color/unchecked_red"
+        android:drawableRight="@drawable/ic_baseline_delete_24"
+        android:elevation="0dp"
+        android:fontFamily="@font/roboto"
+        android:paddingHorizontal="40dp"
+        android:text="Удалить все счетчики"
+        android:textColor="@color/red"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/toolbar"
+        app:layout_constraintVertical_bias="0.263" />
+
+    <Button
+        android:id="@+id/payMoneyButton"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@color/unchecked_green"
+        android:drawableRight="@drawable/ic_baseline_monetization_on_24"
+        android:elevation="0dp"
+        android:fontFamily="@font/roboto"
+        android:paddingHorizontal="40dp"
+        android:text="Убрать все ограничения"
+        android:textColor="@color/green"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/clearDatabaseButton"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/sendPromoCodeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/unclickable_create_button"
+        android:fontFamily="@font/roboto"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:text="Отправить"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.527"
+        app:layout_constraintStart_toEndOf="@+id/promoCodeField"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.562" />
+
+    <EditText
+        android:id="@+id/promoCodeField"
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:background="@drawable/border_textview"
+        android:fontFamily="@font/roboto"
+        android:gravity="top|start"
+        android:hint="Промокод"
+        android:maxLength="2000"
+        android:padding="6dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:textColor="@color/black"
+        android:textColorHint="@color/grey_hint"
+        android:textSize="22sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.18"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.562" />
+
+    <TextView
+        android:id="@+id/appInfoTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/roboto"
+        android:text="Версия приложения: "
+        android:textSize="18sp"
+        android:textColor="@color/grey_light"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/toolbar"
+        app:layout_constraintVertical_bias="0.955" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

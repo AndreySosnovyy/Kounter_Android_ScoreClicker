@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.media.MediaPlayer;
@@ -79,8 +80,9 @@ public class MainActivity extends AppCompatActivity {
                 builder.setPositiveButton("Да", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
 
+                        // отмена таймера, потому что он работает независимо от MainActivity
                         if (countDownTimer != null)
-                            countDownTimer.cancel(); // отмена таймера, потому что он работает независимо от MainActivity
+                            countDownTimer.cancel();
 
                         DataBaseHelper.restartCounter(dataBaseHelper.getWritableDatabase(), globalName);
 
@@ -137,12 +139,12 @@ public class MainActivity extends AppCompatActivity {
     boolean flagTimerStarted = false, flagStopwatchStarted = false;
     Button counterButton;
     Toolbar toolbar;
-    //TextView timeScreenHead;
     Chronometer timeScreenHead;
     TextView startTimerTextView, timerPicture, finishTextView, stopwatchTimeAfterFinishTextView;
     Animation upAnimation, fadeInAnimation, fadeOutAnimation;
     CountDownTimer countDownTimer;
     View indicator;
+    SharedPreferences settings;
 
     static boolean active = false;
     static String globalName;
@@ -167,6 +169,8 @@ public class MainActivity extends AppCompatActivity {
         finishTextView = findViewById(R.id.finishTextView);
         stopwatchTimeAfterFinishTextView = findViewById(R.id.stopwatchTimeAfterFinishTextView);
         indicator = findViewById(R.id.indicator);
+
+        settings = getSharedPreferences(Helper.APP_PREFERENCES, Context.MODE_PRIVATE);
 
         // по идее, значит, что поток 100% завершится после завершения основного потока
         backgroundThread.setDaemon(true);
@@ -385,13 +389,15 @@ public class MainActivity extends AppCompatActivity {
                             finishTextView.startAnimation(fadeOutAnimation);
                             finishTextView.setVisibility(View.INVISIBLE);
 
-                            // TODO - условие из настроек
+                            if (settings.getBoolean(Helper.SETTINGS_SOUND, true)) {
+                                timerSound = MediaPlayer.create(getApplicationContext(), R.raw.timer_sound);
+                                timerSound.start();
+                            }
 
-                            Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                            if (v != null) v.vibrate(800);
-
-                            timerSound = MediaPlayer.create(getApplicationContext(), R.raw.timer_sound);
-                            timerSound.start();
+                            if (settings.getBoolean(Helper.SETTINGS_VIBRATION, true)) {
+                                Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                                if (v != null) v.vibrate(800);
+                            }
                         }
                     }.start();
                 }
@@ -434,13 +440,15 @@ public class MainActivity extends AppCompatActivity {
                             timeScreenHead.stop();
                         }
 
-                        // TODO - условие из настроек
+                        if (settings.getBoolean(Helper.SETTINGS_SOUND, true)) {
+                            finishSound = MediaPlayer.create(getApplicationContext(), R.raw.finish_sound);
+                            finishSound.start();
+                        }
 
-                        Vibrator v1 = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                        if (v1 != null) v1.vibrate(800);
-
-                        finishSound = MediaPlayer.create(getApplicationContext(), R.raw.finish_sound);
-                        finishSound.start();
+                        if (settings.getBoolean(Helper.SETTINGS_VIBRATION, true)) {
+                            Vibrator v1 = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                            if (v1 != null) v1.vibrate(800);
+                        }
 
                         // анимация конфетти
                         final KonfettiView konfettiView = findViewById(R.id.viewKonfetti);

@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -78,7 +79,8 @@ public class MenuActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.settings) {
-            // новый лэйаут для настроек
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
         }
         return true;
     }
@@ -117,7 +119,6 @@ public class MenuActivity extends AppCompatActivity
         timerLineOn = findViewById(R.id.timer_view_line_on);
         stopwatchLineOff = findViewById(R.id.stopwatch_view_line_off);
         stopwatchLineOn = findViewById(R.id.stopwatch_view_line_on);
-        clearDatabaseButton = findViewById(R.id.clearDB);
         recyclerView = findViewById(R.id.countersRecyclerView);
 
         dataBaseHelper = new DataBaseHelper(this);
@@ -197,8 +198,7 @@ public class MenuActivity extends AppCompatActivity
 
         nameField.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -210,25 +210,7 @@ public class MenuActivity extends AppCompatActivity
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-
-        clearDatabaseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SQLiteDatabase database = new DataBaseHelper(getApplicationContext()).getWritableDatabase();
-                try {
-                    database.delete(DataBaseHelper.COUNTER_TABLE, null, null);
-                    database.delete(DataBaseHelper.COUNTER_CLICK_TABLE, null, null);
-//                    database.execSQL("drop table if exists " + DataBaseHelper.COUNTER_CLICK_TABLE);
-//                    database.execSQL("drop table if exists " + DataBaseHelper.COUNTER_TABLE);
-                    Log.d(TAG, "THE DATABASE HAS BEEN CLEARED");
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-
-            }
+            public void afterTextChanged(Editable s) { }
         });
 
         createCounterButton.setOnClickListener(new View.OnClickListener() {
